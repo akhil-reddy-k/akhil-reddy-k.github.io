@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jenkins Complete Cheat Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #0f1520;
+    --surface2: #151d2e;
+    --surface3: #1a2438;
+    --border: #1e2d47;
+    --accent: #f0883e;
+    --accent2: #58a6ff;
+    --accent3: #3fb950;
+    --accent4: #ff7b72;
+    --accent5: #d2a8ff;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+    --jenkins-red: #d24939;
+    --jenkins-dark: #1a1a2e;
+    --code-bg: #0d1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0e17 0%, #0f1a2e 50%, #0a0e17 100%);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(210,73,57,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(88,166,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(210,73,57,0.15);
+    border: 1px solid rgba(210,73,57,0.4);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 6vw, 80px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 .red { color: var(--jenkins-red); }
+  .hero h1 .dim { color: var(--text3); font-weight: 400; }
+
+  .hero-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 40px;
+    max-width: 600px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .meta-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent3);
+  }
+
+  /* GRID LAYOUT */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* SECTION HEADERS */
+  .section {
+    padding: 60px 60px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 2px;
+  }
+
+  .section-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* PIPELINE FLOW CHART */
+  .flow-container {
+    padding: 60px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .flow-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 50px;
+  }
+
+  .pipeline-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 20px;
+  }
+
+  .flow-stage {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .stage-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    min-width: 160px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .stage-box:hover {
+    border-color: var(--accent);
+    background: var(--surface3);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(240,136,62,0.1);
+  }
+
+  .stage-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .stage-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stage-desc {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.4;
+  }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: var(--text3);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .flow-arrow-line {
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(to right, var(--border), var(--accent));
+    position: relative;
+  }
+
+  .flow-arrow-line::after {
+    content: '▶';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 10px;
+  }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .code-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .code-dot:nth-child(1) { background: #ff5f57; }
+  .code-dot:nth-child(2) { background: #ffbd2e; }
+  .code-dot:nth-child(3) { background: #28ca41; }
+
+  .code-body {
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  .code-body pre {
+    white-space: pre;
+  }
+
+  /* SYNTAX HIGHLIGHTING */
+  .kw { color: #ff7b72; }       /* keywords */
+  .str { color: #a5d6ff; }      /* strings */
+  .fn { color: #d2a8ff; }       /* functions/directives */
+  .cm { color: #8b949e; font-style: italic; } /* comments */
+  .val { color: #79c0ff; }      /* values */
+  .num { color: #f2cc60; }      /* numbers */
+  .op { color: #58a6ff; }       /* operators */
+  .env { color: #3fb950; }      /* env vars */
+
+  /* CARDS GRID */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .card:hover {
+    border-color: var(--border);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+
+  .card-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  .card-body {
+    padding: 16px 20px;
+  }
+
+  /* OPTION ROWS */
+  .option-row {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(30,45,71,0.5);
+    align-items: flex-start;
+  }
+
+  .option-row:last-child { border-bottom: none; }
+
+  .option-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(88,166,255,0.08);
+    padding: 2px 8px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .option-val {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  /* TABLES */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin: 16px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    background: var(--surface2);
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,71,0.5);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  td code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(88,166,255,0.08);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* TAGS */
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin: 2px;
+  }
+
+  .tag-red { background: rgba(210,73,57,0.15); color: #ff7b72; border: 1px solid rgba(210,73,57,0.3); }
+  .tag-blue { background: rgba(88,166,255,0.1); color: #58a6ff; border: 1px solid rgba(88,166,255,0.25); }
+  .tag-green { background: rgba(63,185,80,0.1); color: #3fb950; border: 1px solid rgba(63,185,80,0.25); }
+  .tag-purple { background: rgba(210,168,255,0.1); color: #d2a8ff; border: 1px solid rgba(210,168,255,0.25); }
+  .tag-orange { background: rgba(240,136,62,0.1); color: #f0883e; border: 1px solid rgba(240,136,62,0.25); }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 3px solid;
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+
+  .callout-tip { border-color: var(--accent3); background: rgba(63,185,80,0.05); }
+  .callout-warn { border-color: var(--accent); background: rgba(240,136,62,0.05); }
+  .callout-info { border-color: var(--accent2); background: rgba(88,166,255,0.05); }
+
+  .callout-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .callout-tip .callout-label { color: var(--accent3); }
+  .callout-warn .callout-label { color: var(--accent); }
+  .callout-info .callout-label { color: var(--accent2); }
+
+  /* COLS */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  @media (max-width: 900px) {
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    .section, .flow-container { padding: 40px 24px; }
+    .hero { padding: 50px 24px 40px; }
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin: 40px 60px;
+  }
+
+  .toc-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 16px;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text2);
+    text-decoration: none;
+    padding: 4px 0;
+    transition: color 0.2s;
+  }
+
+  .toc-item:hover { color: var(--accent); }
+  .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+  }
+
+  /* INLINE CODE */
+  .ic {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    background: rgba(88,166,255,0.08);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  /* POST CONDITIONS TABLE */
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .post-card {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+  }
+
+  .post-card-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .post-card-desc {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.5;
+  }
+
+  /* AGENT OPTIONS */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .agent-card {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .agent-card-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .agent-card-body {
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  .footer {
+    padding: 40px 60px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+  }
+
+  .footer-left {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .footer-right {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* TRIGGER ITEMS */
+  .trigger-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin: 8px 0;
+  }
+
+  .trigger-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent5);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  .trigger-desc {
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  /* SECTION ANCHOR */
+  .section-anchor { scroll-margin-top: 20px; }
+
+  /* LIGHT THEME */
+  [data-theme="light"] {
+    --bg: #f4f6fa;
+    --surface: #ffffff;
+    --surface2: #eef1f6;
+    --surface3: #e4e8ef;
+    --border: #d0d7de;
+    --accent: #c05620;
+    --accent2: #0969da;
+    --accent3: #1a7f37;
+    --accent4: #cf222e;
+    --accent5: #8250df;
+    --text: #1f2328;
+    --text2: #59636e;
+    --text3: #818b98;
+    --jenkins-red: #c4392b;
+    --jenkins-dark: #e8e8f0;
+    --code-bg: #f6f8fa;
+  }
+
+  [data-theme="light"] .hero {
+    background: linear-gradient(135deg, #f4f6fa 0%, #e8edf5 50%, #f4f6fa 100%);
+  }
+
+  [data-theme="light"] .hero::before {
+    background: radial-gradient(circle, rgba(210,73,57,0.08) 0%, transparent 70%);
+  }
+
+  [data-theme="light"] .hero::after {
+    background: radial-gradient(circle, rgba(88,166,255,0.06) 0%, transparent 70%);
+  }
+
+  [data-theme="light"] .hero-badge {
+    background: rgba(210,73,57,0.08);
+    border-color: rgba(210,73,57,0.25);
+  }
+
+  [data-theme="light"] .option-row {
+    border-bottom-color: rgba(208,215,222,0.6);
+  }
+
+  [data-theme="light"] .option-key {
+    background: rgba(9,105,218,0.07);
+  }
+
+  [data-theme="light"] td code,
+  [data-theme="light"] .ic {
+    background: rgba(9,105,218,0.07);
+  }
+
+  [data-theme="light"] .tag-red { background: rgba(207,34,46,0.07); color: #cf222e; border-color: rgba(207,34,46,0.2); }
+  [data-theme="light"] .tag-blue { background: rgba(9,105,218,0.07); color: #0969da; border-color: rgba(9,105,218,0.2); }
+  [data-theme="light"] .tag-green { background: rgba(26,127,55,0.07); color: #1a7f37; border-color: rgba(26,127,55,0.2); }
+  [data-theme="light"] .tag-purple { background: rgba(130,80,223,0.07); color: #8250df; border-color: rgba(130,80,223,0.2); }
+  [data-theme="light"] .tag-orange { background: rgba(192,86,32,0.07); color: #c05620; border-color: rgba(192,86,32,0.2); }
+
+  [data-theme="light"] .card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  }
+
+  [data-theme="light"] .stage-box:hover {
+    box-shadow: 0 12px 40px rgba(192,86,32,0.08);
+  }
+
+  [data-theme="light"] .flow-arrow-line {
+    background: linear-gradient(to right, var(--border), var(--accent));
+  }
+
+  [data-theme="light"] tr:hover td {
+    background: rgba(0,0,0,0.02);
+  }
+
+  [data-theme="light"] .callout-tip { background: rgba(26,127,55,0.04); }
+  [data-theme="light"] .callout-warn { background: rgba(192,86,32,0.04); }
+  [data-theme="light"] .callout-info { background: rgba(9,105,218,0.04); }
+
+  [data-theme="light"] .kw { color: #cf222e; }
+  [data-theme="light"] .str { color: #0550ae; }
+  [data-theme="light"] .fn { color: #8250df; }
+  [data-theme="light"] .cm { color: #6e7781; }
+  [data-theme="light"] .val { color: #0969da; }
+  [data-theme="light"] .num { color: #953800; }
+  [data-theme="light"] .op { color: #0969da; }
+  [data-theme="light"] .env { color: #1a7f37; }
+
+  [data-theme="light"] .code-dot:nth-child(1) { background: #ff5f57; }
+  [data-theme="light"] .code-dot:nth-child(2) { background: #ffbd2e; }
+  [data-theme="light"] .code-dot:nth-child(3) { background: #28ca41; }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    width: 60px;
+    height: 32px;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #1a1a3e 0%, #0f1520 100%);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .theme-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 20px rgba(240,136,62,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  .theme-toggle:active {
+    transform: scale(0.95);
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e8e0d0 0%, #f5eedd 100%);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  .toggle-thumb .icon {
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.3s ease;
+  }
+
+  .toggle-stars {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .toggle-star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.7;
+  }
+
+  .toggle-star:nth-child(1) { top: 7px; right: 10px; }
+  .toggle-star:nth-child(2) { top: 14px; right: 16px; width: 1.5px; height: 1.5px; opacity: 0.5; }
+  .toggle-star:nth-child(3) { top: 22px; right: 8px; width: 1px; height: 1px; opacity: 0.4; }
+
+  [data-theme="light"] .theme-toggle {
+    background: linear-gradient(135deg, #87ceeb 0%, #60b3e0 100%);
+    box-shadow: 0 2px 12px rgba(96,179,224,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  [data-theme="light"] .theme-toggle:hover {
+    box-shadow: 0 4px 20px rgba(96,179,224,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  [data-theme="light"] .toggle-thumb {
+    left: 31px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffb800 100%);
+    box-shadow: 0 0 10px rgba(255,200,0,0.4), 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  [data-theme="light"] .toggle-stars {
+    opacity: 0;
+  }
+</style>
+</head>
+<body data-theme="light">
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+  <div class="toggle-stars">
+    <div class="toggle-star"></div>
+    <div class="toggle-star"></div>
+    <div class="toggle-star"></div>
+  </div>
+  <div class="toggle-thumb">
+    <span class="icon" id="toggleIcon">🌙</span>
+  </div>
+</button>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">⚙ Ultimate Reference </div>
+  <h1>
+    <span class="red">Jenkins</span><br>
+    <span class="dim">Complete</span> Cheat Sheet
+  </h1>
+  <p class="hero-sub">// Everything you need to know — pipeline syntax, agents, triggers, stages, post-conditions, parameters, shared libraries, plugins & more</p>
+  <div class="hero-meta">
+    <div class="meta-item"><div class="meta-dot"></div> Pipeline-as-Code (Declarative + Scripted)</div>
+    <div class="meta-item"><div class="meta-dot" style="background:var(--accent2)"></div> CI/CD Best Practices</div>
+    <div class="meta-item"><div class="meta-dot" style="background:var(--accent5)"></div> SDET / QA Automation Focus</div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-title">// Table of Contents</div>
+  <div class="toc-grid">
+    <a class="toc-item" href="#s1"><span class="toc-num">01</span> Pipeline Overview</a>
+    <a class="toc-item" href="#s2"><span class="toc-num">02</span> Full Pipeline Flow</a>
+    <a class="toc-item" href="#s3"><span class="toc-num">03</span> Agent Directive</a>
+    <a class="toc-item" href="#s4"><span class="toc-num">04</span> Stages & Steps</a>
+    <a class="toc-item" href="#s5"><span class="toc-num">05</span> Environment Variables</a>
+    <a class="toc-item" href="#s6"><span class="toc-num">06</span> Parameters</a>
+    <a class="toc-item" href="#s7"><span class="toc-num">07</span> Triggers</a>
+    <a class="toc-item" href="#s8"><span class="toc-num">08</span> Post Conditions</a>
+    <a class="toc-item" href="#s9"><span class="toc-num">09</span> When / Conditionals</a>
+    <a class="toc-item" href="#s10"><span class="toc-num">10</span> Parallel Execution</a>
+    <a class="toc-item" href="#s11"><span class="toc-num">11</span> Shared Libraries</a>
+    <a class="toc-item" href="#s12"><span class="toc-num">12</span> Credentials</a>
+    <a class="toc-item" href="#s13"><span class="toc-num">13</span> Job Types</a>
+    <a class="toc-item" href="#s14"><span class="toc-num">14</span> Key Plugins</a>
+    <a class="toc-item" href="#s15"><span class="toc-num">15</span> QA / SDET Pipelines</a>
+    <a class="toc-item" href="#s16"><span class="toc-num">16</span> Scripted vs Declarative</a>
+  </div>
+</div>
+
+<!-- S1: PIPELINE OVERVIEW -->
+<div class="section section-anchor" id="s1">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Pipeline Overview</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <p style="color:var(--text2);font-size:14px;margin-bottom:20px;">A Jenkins Pipeline is automation logic written as code in a <span class="ic">Jenkinsfile</span>, committed to your repository. It defines how your code is built, tested, and deployed.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-label">Key Insight</div>
+        Pipeline-as-Code means your CI/CD lives in Git — versioned, reviewed, and auditable alongside your app code.
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="margin-bottom:12px;font-size:13px;font-weight:700;">Two Syntax Styles:</div>
+      <div class="option-row">
+        <span class="option-key">Declarative</span>
+        <span class="option-val">Structured, opinionated, easier to learn. Uses <code style="font-family:JetBrains Mono;font-size:11px;color:#58a6ff">pipeline{}</code> block. <span class="tag tag-green">Recommended</span></span>
+      </div>
+      <div class="option-row">
+        <span class="option-key">Scripted</span>
+        <span class="option-val">Groovy-based, flexible, full programming power. Uses <code style="font-family:JetBrains Mono;font-size:11px;color:#58a6ff">node{}</code> block.</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Jenkinsfile · Declarative Skeleton</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">pipeline</span> {
+  <span class="fn">agent</span> <span class="val">any</span>
+
+  <span class="fn">environment</span> {
+    <span class="env">APP_NAME</span> = <span class="str">'my-app'</span>
+  }
+
+  <span class="fn">parameters</span> {
+    <span class="fn">string</span>(name: <span class="str">'BRANCH'</span>, defaultValue: <span class="str">'main'</span>)
+  }
+
+  <span class="fn">triggers</span> {
+    <span class="fn">cron</span>(<span class="str">'H 2 * * *'</span>)
+  }
+
+  <span class="fn">stages</span> {
+    <span class="fn">stage</span>(<span class="str">'Build'</span>) {
+      <span class="fn">steps</span> {
+        <span class="fn">sh</span> <span class="str">'npm install'</span>
+      }
+    }
+    <span class="fn">stage</span>(<span class="str">'Test'</span>) {
+      <span class="fn">steps</span> {
+        <span class="fn">sh</span> <span class="str">'npm test'</span>
+      }
+    }
+  }
+
+  <span class="fn">post</span> {
+    <span class="val">always</span> { <span class="fn">echo</span> <span class="str">'Done!'</span> }
+    <span class="val">failure</span> { <span class="fn">mail</span> to: <span class="str">'qa@co.com'</span> }
+  }
+}</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S2: FULL PIPELINE FLOW -->
+<div class="flow-container section-anchor" id="s2">
+  <div class="flow-title-row">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Full Pipeline Flow</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="pipeline-flow">
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">🔔</span>
+        <span class="stage-name">Trigger</span>
+        <span class="stage-desc">Webhook / cron / manual / upstream</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">🖥</span>
+        <span class="stage-name">Agent</span>
+        <span class="stage-desc">Select node / docker / k8s pod</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">📥</span>
+        <span class="stage-name">Checkout</span>
+        <span class="stage-desc">SCM clone / pull code</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">🔧</span>
+        <span class="stage-name">Build</span>
+        <span class="stage-desc">Compile / install deps</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">🧪</span>
+        <span class="stage-name">Test</span>
+        <span class="stage-desc">Unit / integration / e2e</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">📊</span>
+        <span class="stage-name">Report</span>
+        <span class="stage-desc">Publish results / artifacts</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">📦</span>
+        <span class="stage-name">Package</span>
+        <span class="stage-desc">Docker build / JAR / ZIP</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">🚀</span>
+        <span class="stage-name">Deploy</span>
+        <span class="stage-desc">Staging / prod / k8s</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">📬</span>
+        <span class="stage-name">Notify</span>
+        <span class="stage-desc">Slack / email / Teams</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;">
+    <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:16px;">Each Stage Has These Sub-Options:</div>
+    <div class="three-col">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(88,166,255,0.1)">🧩</div>
+          <div><div class="card-title">steps{}</div><div class="card-subtitle">What to execute</div></div>
+        </div>
+        <div class="card-body">
+          <div class="option-row"><span class="option-key">sh</span><span class="option-val">Run shell command (Linux/Mac)</span></div>
+          <div class="option-row"><span class="option-key">bat</span><span class="option-val">Run batch command (Windows)</span></div>
+          <div class="option-row"><span class="option-key">echo</span><span class="option-val">Print to build log</span></div>
+          <div class="option-row"><span class="option-key">script{}</span><span class="option-val">Groovy scripted block</span></div>
+          <div class="option-row"><span class="option-key">checkout</span><span class="option-val">SCM checkout</span></div>
+          <div class="option-row"><span class="option-key">input</span><span class="option-val">Pause and wait for approval</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(210,168,255,0.1)">🔀</div>
+          <div><div class="card-title">options{}</div><div class="card-subtitle">Stage-level config</div></div>
+        </div>
+        <div class="card-body">
+          <div class="option-row"><span class="option-key">timeout</span><span class="option-val">Max time before failing stage</span></div>
+          <div class="option-row"><span class="option-key">retry</span><span class="option-val">Number of retries on failure</span></div>
+          <div class="option-row"><span class="option-key">skipStagesAfterUnstable</span><span class="option-val">Skip remaining on unstable</span></div>
+          <div class="option-row"><span class="option-key">timestamps</span><span class="option-val">Add timestamps to log</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(63,185,80,0.1)">✅</div>
+          <div><div class="card-title">post{}</div><div class="card-subtitle">After stage actions</div></div>
+        </div>
+        <div class="card-body">
+          <div class="option-row"><span class="option-key">always</span><span class="option-val">Always run regardless of result</span></div>
+          <div class="option-row"><span class="option-key">success</span><span class="option-val">Run only on success</span></div>
+          <div class="option-row"><span class="option-key">failure</span><span class="option-val">Run only on failure</span></div>
+          <div class="option-row"><span class="option-key">unstable</span><span class="option-val">Run when result is unstable</span></div>
+          <div class="option-row"><span class="option-key">aborted</span><span class="option-val">Run when manually aborted</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S3: AGENT -->
+<div class="section section-anchor" id="s3">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Agent Directive</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">The <span class="ic">agent</span> directive tells Jenkins WHERE to run your pipeline — on which machine, container, or pod.</p>
+
+  <div class="agent-grid">
+    <div class="agent-card">
+      <div class="agent-card-header">🌐 agent any</div>
+      <div class="agent-card-body">
+        Run on any available agent. Good for simple setups.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="fn">agent</span> <span class="val">any</span></pre></div>
+        </div>
+      </div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-card-header">🚫 agent none</div>
+      <div class="agent-card-body">
+        No global agent. Define agent per stage. Use when different stages need different environments.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="fn">agent</span> <span class="val">none</span>
+<span class="cm">// then per stage:</span>
+<span class="fn">stage</span>(<span class="str">'Test'</span>) {
+  <span class="fn">agent</span> { <span class="fn">label</span> <span class="str">'linux'</span> }
+}</pre></div>
+        </div>
+      </div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-card-header">🏷 agent label</div>
+      <div class="agent-card-body">
+        Run on a specific agent by label (e.g. linux, windows, mac, gpu-node).
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="fn">agent</span> {
+  <span class="fn">label</span> <span class="str">'linux-agent'</span>
+}</pre></div>
+        </div>
+      </div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-card-header">🐳 agent docker</div>
+      <div class="agent-card-body">
+        Run inside a Docker container. Container is spun up, pipeline runs, then destroyed.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="fn">agent</span> {
+  <span class="fn">docker</span> {
+    <span class="fn">image</span> <span class="str">'node:18-alpine'</span>
+    <span class="fn">args</span> <span class="str">'-v /tmp:/tmp'</span>
+  }
+}</pre></div>
+        </div>
+      </div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-card-header">☸️ agent kubernetes</div>
+      <div class="agent-card-body">
+        Run in a Kubernetes pod. Scale Jenkins agents dynamically with K8s.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="fn">agent</span> {
+  <span class="fn">kubernetes</span> {
+    <span class="fn">yaml</span> <span class="str">'''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: node
+    image: node:18
+'''</span>
+  }
+}</pre></div>
+        </div>
+      </div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-card-header">📦 agent dockerfile</div>
+      <div class="agent-card-body">
+        Build from a Dockerfile in your repo and use it as the agent.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="fn">agent</span> {
+  <span class="fn">dockerfile</span> {
+    <span class="fn">filename</span> <span class="str">'Dockerfile.ci'</span>
+    <span class="fn">dir</span> <span class="str">'docker'</span>
+  }
+}</pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: STAGES & STEPS -->
+<div class="section section-anchor" id="s4">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Stages & Steps — All Syntax</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Common Step Commands</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Step</th><th>Purpose</th><th>Example</th></tr>
+          <tr><td><code>sh</code></td><td>Shell command (Unix)</td><td><code>sh 'npm test'</code></td></tr>
+          <tr><td><code>bat</code></td><td>Batch command (Windows)</td><td><code>bat 'mvn test'</code></td></tr>
+          <tr><td><code>echo</code></td><td>Log a message</td><td><code>echo 'Starting...'</code></td></tr>
+          <tr><td><code>git</code></td><td>Clone a repo</td><td><code>git url: '...'</code></td></tr>
+          <tr><td><code>checkout scm</code></td><td>Checkout current repo</td><td><code>checkout scm</code></td></tr>
+          <tr><td><code>input</code></td><td>Wait for approval</td><td><code>input 'Deploy?'</code></td></tr>
+          <tr><td><code>sleep</code></td><td>Pause execution</td><td><code>sleep 30</code></td></tr>
+          <tr><td><code>timeout</code></td><td>Fail if too slow</td><td><code>timeout(time:5,unit:'MINUTES'){...}</code></td></tr>
+          <tr><td><code>retry</code></td><td>Retry on failure</td><td><code>retry(3){sh 'curl ...'}</code></td></tr>
+          <tr><td><code>withEnv</code></td><td>Set env for block</td><td><code>withEnv(['X=1']){...}</code></td></tr>
+          <tr><td><code>withCredentials</code></td><td>Inject secrets</td><td><code>withCredentials([...]){...}</code></td></tr>
+          <tr><td><code>archiveArtifacts</code></td><td>Save build output</td><td><code>archiveArtifacts '**/*.jar'</code></td></tr>
+          <tr><td><code>stash / unstash</code></td><td>Pass files between stages</td><td><code>stash name:'build'</code></td></tr>
+          <tr><td><code>junit</code></td><td>Publish JUnit results</td><td><code>junit '**/*.xml'</code></td></tr>
+          <tr><td><code>publishHTML</code></td><td>Publish HTML reports</td><td><code>publishHTML([...])</code></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Stage with All Options</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Full Stage Syntax</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">stage</span>(<span class="str">'Run Tests'</span>) {
+  <span class="cm">// Which agent for this stage</span>
+  <span class="fn">agent</span> { <span class="fn">label</span> <span class="str">'test-node'</span> }
+
+  <span class="cm">// Only run if condition is true</span>
+  <span class="fn">when</span> {
+    <span class="fn">branch</span> <span class="str">'main'</span>
+  }
+
+  <span class="cm">// Stage-level environment</span>
+  <span class="fn">environment</span> {
+    <span class="env">TEST_ENV</span> = <span class="str">'staging'</span>
+  }
+
+  <span class="cm">// Stage options</span>
+  <span class="fn">options</span> {
+    <span class="fn">timeout</span>(time: <span class="num">30</span>, unit: <span class="str">'MINUTES'</span>)
+    <span class="fn">retry</span>(<span class="num">2</span>)
+  }
+
+  <span class="cm">// What to do</span>
+  <span class="fn">steps</span> {
+    <span class="fn">sh</span> <span class="str">'npx playwright test'</span>
+  }
+
+  <span class="cm">// After this stage</span>
+  <span class="fn">post</span> {
+    <span class="val">always</span> {
+      <span class="fn">publishHTML</span>([
+        reportDir: <span class="str">'playwright-report'</span>,
+        reportFiles: <span class="str">'index.html'</span>,
+        reportName: <span class="str">'Test Report'</span>
+      ])
+    }
+    <span class="val">failure</span> {
+      <span class="fn">echo</span> <span class="str">'Tests failed!'</span>
+    }
+  }
+}</pre></div>
+      </div>
+
+      <div class="callout callout-tip" style="margin-top:16px;">
+        <div class="callout-label">💡 Pro Tip</div>
+        Use <span class="ic">stash</span> / <span class="ic">unstash</span> to share files between stages running on different agents.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S5: ENVIRONMENT VARIABLES -->
+<div class="section section-anchor" id="s5">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2 class="section-title">Environment Variables</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Built-in Jenkins Variables</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Variable</th><th>Value</th></tr>
+          <tr><td><code>BUILD_NUMBER</code></td><td>Current build number (1, 2, 3...)</td></tr>
+          <tr><td><code>BUILD_URL</code></td><td>Full URL to this build</td></tr>
+          <tr><td><code>JOB_NAME</code></td><td>Name of the Jenkins job</td></tr>
+          <tr><td><code>WORKSPACE</code></td><td>Path to workspace directory</td></tr>
+          <tr><td><code>GIT_BRANCH</code></td><td>Current git branch name</td></tr>
+          <tr><td><code>GIT_COMMIT</code></td><td>Current commit hash</td></tr>
+          <tr><td><code>NODE_NAME</code></td><td>Agent node name</td></tr>
+          <tr><td><code>BUILD_ID</code></td><td>Build ID (same as number)</td></tr>
+          <tr><td><code>JENKINS_URL</code></td><td>Jenkins base URL</td></tr>
+          <tr><td><code>BRANCH_NAME</code></td><td>Branch in multibranch pipelines</td></tr>
+          <tr><td><code>CHANGE_ID</code></td><td>PR number (if PR pipeline)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Defining & Using Variables</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">environment{} block</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">pipeline</span> {
+  <span class="fn">agent</span> <span class="val">any</span>
+
+  <span class="fn">environment</span> {
+    <span class="cm">// Static values</span>
+    <span class="env">APP_NAME</span>  = <span class="str">'my-app'</span>
+    <span class="env">REGISTRY</span>  = <span class="str">'docker.io/myorg'</span>
+
+    <span class="cm">// From credentials store</span>
+    <span class="env">API_KEY</span>   = <span class="fn">credentials</span>(<span class="str">'api-key-id'</span>)
+
+    <span class="cm">// Dynamic - using sh output</span>
+    <span class="env">GIT_SHA</span>   = <span class="fn">sh</span>(script: <span class="str">'git rev-parse --short HEAD'</span>,
+                      returnStdout: <span class="val">true</span>).trim()
+  }
+
+  <span class="fn">stages</span> {
+    <span class="fn">stage</span>(<span class="str">'Build'</span>) {
+      <span class="fn">steps</span> {
+        <span class="cm">// Access with ${} in strings</span>
+        <span class="fn">sh</span> <span class="str">"docker build -t ${REGISTRY}/${APP_NAME}:${GIT_SHA} ."</span>
+
+        <span class="cm">// Or env.VARIABLE in Groovy</span>
+        <span class="fn">echo</span> <span class="str">"Build: ${env.BUILD_NUMBER}"</span>
+      }
+    }
+  }
+}</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S6: PARAMETERS -->
+<div class="section section-anchor" id="s6">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2 class="section-title">Parameters — All Types</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">All Parameter Types</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">parameters</span> {
+
+  <span class="cm">// Free text input</span>
+  <span class="fn">string</span>(
+    name: <span class="str">'VERSION'</span>,
+    defaultValue: <span class="str">'1.0.0'</span>,
+    description: <span class="str">'App version to deploy'</span>
+  )
+
+  <span class="cm">// Multi-line text</span>
+  <span class="fn">text</span>(
+    name: <span class="str">'RELEASE_NOTES'</span>,
+    defaultValue: <span class="str">''</span>,
+    description: <span class="str">'What changed?'</span>
+  )
+
+  <span class="cm">// Dropdown list</span>
+  <span class="fn">choice</span>(
+    name: <span class="str">'ENVIRONMENT'</span>,
+    choices: [<span class="str">'dev'</span>, <span class="str">'staging'</span>, <span class="str">'prod'</span>],
+    description: <span class="str">'Target environment'</span>
+  )
+
+  <span class="cm">// True/False checkbox</span>
+  <span class="fn">booleanParam</span>(
+    name: <span class="str">'SKIP_TESTS'</span>,
+    defaultValue: <span class="val">false</span>,
+    description: <span class="str">'Skip test stage?'</span>
+  )
+
+  <span class="cm">// File upload (needs File Param plugin)</span>
+  <span class="fn">file</span>(
+    name: <span class="str">'CONFIG_FILE'</span>,
+    description: <span class="str">'Upload config file'</span>
+  )
+
+  <span class="cm">// Password (hidden in UI)</span>
+  <span class="fn">password</span>(
+    name: <span class="str">'SECRET'</span>,
+    defaultValue: <span class="str">''</span>,
+    description: <span class="str">'Secret value'</span>
+  )
+
+  <span class="cm">// Branch selector (needs Git Parameter plugin)</span>
+  <span class="fn">gitParameter</span>(
+    name: <span class="str">'BRANCH_NAME'</span>,
+    type: <span class="str">'PT_BRANCH'</span>,
+    defaultValue: <span class="str">'main'</span>,
+    description: <span class="str">'Select branch'</span>
+  )
+
+}</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Using Parameters in Pipeline</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Accessing params.*</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">stages</span> {
+  <span class="fn">stage</span>(<span class="str">'Checkout'</span>) {
+    <span class="fn">steps</span> {
+      <span class="fn">git</span> branch: <span class="str">"${params.BRANCH_NAME}"</span>,
+          url: <span class="str">'https://github.com/org/repo.git'</span>
+    }
+  }
+
+  <span class="fn">stage</span>(<span class="str">'Test'</span>) {
+    <span class="fn">when</span> {
+      <span class="cm">// Skip this stage if param is true</span>
+      <span class="fn">expression</span> { <span class="val">return</span> !params.SKIP_TESTS }
+    }
+    <span class="fn">steps</span> {
+      <span class="fn">sh</span> <span class="str">"npx playwright test --project=${params.ENVIRONMENT}"</span>
+    }
+  }
+
+  <span class="fn">stage</span>(<span class="str">'Deploy'</span>) {
+    <span class="fn">steps</span> {
+      <span class="fn">script</span> {
+        <span class="cm">// Use in Groovy logic</span>
+        <span class="kw">if</span> (params.ENVIRONMENT == <span class="str">'prod'</span>) {
+          <span class="fn">input</span> <span class="str">'Confirm production deploy?'</span>
+        }
+        <span class="fn">sh</span> <span class="str">"./deploy.sh ${params.ENVIRONMENT} ${params.VERSION}"</span>
+      }
+    }
+  }
+}</pre></div>
+      </div>
+
+      <div class="callout callout-warn" style="margin-top:16px;">
+        <div class="callout-label">⚠ Note</div>
+        Parameters are only available after the first build. Jenkins needs one run to register them. Use <span class="ic">defaultValue</span> to handle the first run safely.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S7: TRIGGERS -->
+<div class="section section-anchor" id="s7">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2 class="section-title">Triggers</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="trigger-item">
+        <div class="trigger-name">cron — Schedule-based</div>
+        <div class="trigger-desc">Run at fixed times using cron syntax</div>
+        <div class="code-block"><div class="code-body" style="padding:12px"><pre><span class="fn">triggers</span> {
+  <span class="fn">cron</span>(<span class="str">'H 2 * * 1-5'</span>)   <span class="cm">// 2AM Mon-Fri</span>
+  <span class="fn">cron</span>(<span class="str">'H/15 * * * *'</span>)  <span class="cm">// Every 15 min</span>
+  <span class="fn">cron</span>(<span class="str">'0 8 * * 1'</span>)     <span class="cm">// 8AM every Monday</span>
+}</pre></div></div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text3)">Format: MIN HOUR DOM MON DOW &nbsp;·&nbsp; H = hash (avoid thundering herd)</div>
+      </div>
+
+      <div class="trigger-item">
+        <div class="trigger-name">pollSCM — Polling-based</div>
+        <div class="trigger-desc">Jenkins checks Git for changes on a schedule</div>
+        <div class="code-block"><div class="code-body" style="padding:12px"><pre><span class="fn">triggers</span> {
+  <span class="cm">// Check every 5 minutes</span>
+  <span class="fn">pollSCM</span>(<span class="str">'H/5 * * * *'</span>)
+}</pre></div></div>
+      </div>
+
+      <div class="trigger-item">
+        <div class="trigger-name">githubPush — Webhook-based</div>
+        <div class="trigger-desc">GitHub notifies Jenkins instantly on push</div>
+        <div class="code-block"><div class="code-body" style="padding:12px"><pre><span class="fn">triggers</span> {
+  <span class="fn">githubPush</span>()
+  <span class="cm">// Requires GitHub plugin + webhook config</span>
+}</pre></div></div>
+      </div>
+
+      <div class="trigger-item">
+        <div class="trigger-name">upstream — Job-based</div>
+        <div class="trigger-desc">Trigger when another job finishes</div>
+        <div class="code-block"><div class="code-body" style="padding:12px"><pre><span class="fn">triggers</span> {
+  <span class="fn">upstream</span>(
+    upstreamProjects: <span class="str">'build-job,package-job'</span>,
+    threshold: hudson.model.Result.SUCCESS
+  )
+}</pre></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Cron Quick Reference</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Expression</th><th>Meaning</th></tr>
+          <tr><td><code>H * * * *</code></td><td>Once per hour</td></tr>
+          <tr><td><code>H H * * *</code></td><td>Once per day</td></tr>
+          <tr><td><code>H H * * 0</code></td><td>Once per week (Sunday)</td></tr>
+          <tr><td><code>H H 1 * *</code></td><td>Once per month</td></tr>
+          <tr><td><code>H/30 * * * *</code></td><td>Every 30 minutes</td></tr>
+          <tr><td><code>H 0-7 * * *</code></td><td>Once in first 8 hours</td></tr>
+          <tr><td><code>H 9 * * 1-5</code></td><td>9AM on weekdays</td></tr>
+          <tr><td><code>@midnight</code></td><td>Once a day around midnight</td></tr>
+          <tr><td><code>@weekly</code></td><td>Once a week</td></tr>
+          <tr><td><code>@monthly</code></td><td>Once a month</td></tr>
+        </table>
+      </div>
+
+      <div class="callout callout-tip" style="margin-top:16px;">
+        <div class="callout-label">💡 Use H instead of fixed numbers</div>
+        <span class="ic">H</span> spreads load across Jenkins. Instead of <span class="ic">0 2 * * *</span> (all jobs at exactly 2AM), use <span class="ic">H 2 * * *</span> (each job runs at a different minute within the 2AM hour).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S8: POST CONDITIONS -->
+<div class="section section-anchor" id="s8">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2 class="section-title">Post Conditions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">The <span class="ic">post{}</span> block runs AFTER stages complete. Can be at pipeline level or stage level.</p>
+
+  <div class="post-grid">
+    <div class="post-card"><div class="post-card-name" style="color:var(--accent2)">always</div><div class="post-card-desc">Runs no matter what — success, failure, or abort. Use for cleanup/reporting.</div></div>
+    <div class="post-card"><div class="post-card-name" style="color:var(--accent3)">success</div><div class="post-card-desc">Only when build result is SUCCESS. Good for deployment notifications.</div></div>
+    <div class="post-card"><div class="post-card-name" style="color:var(--accent4)">failure</div><div class="post-card-desc">Only on FAILURE. Send alerts, create tickets, rollback deployments.</div></div>
+    <div class="post-card"><div class="post-card-name" style="color:var(--accent)">unstable</div><div class="post-card-desc">Result is UNSTABLE (tests failed but build passed). Common with test reports.</div></div>
+    <div class="post-card"><div class="post-card-name" style="color:var(--text3)">aborted</div><div class="post-card-desc">Manually stopped by a user. Good for cleanup of running processes.</div></div>
+    <div class="post-card"><div class="post-card-name" style="color:var(--accent5)">changed</div><div class="post-card-desc">Result changed from the previous build (e.g. was success, now fail).</div></div>
+    <div class="post-card"><div class="post-card-name" style="color:var(--accent3)">fixed</div><div class="post-card-desc">Was failing, now passing. Great for "it's back!" notifications.</div></div>
+    <div class="post-card"><div class="post-card-name" style="color:var(--accent4)">regression</div><div class="post-card-desc">Was passing, now failing. Immediate alert trigger.</div></div>
+    <div class="post-card"><div class="post-card-name" style="color:var(--text2)">cleanup</div><div class="post-card-desc">Always runs LAST, after all other post conditions. Use for final cleanup.</div></div>
+  </div>
+
+  <div class="code-block" style="margin-top:24px;">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">Real-world post{} example</span>
+    </div>
+    <div class="code-body"><pre><span class="fn">post</span> {
+  <span class="val">always</span> {
+    <span class="cm">// Always publish test results</span>
+    <span class="fn">junit</span> <span class="str">'**/test-results/*.xml'</span>
+    <span class="fn">publishHTML</span>([reportDir: <span class="str">'playwright-report'</span>, reportFiles: <span class="str">'index.html'</span>, reportName: <span class="str">'E2E Report'</span>])
+  }
+  <span class="val">success</span> {
+    <span class="fn">slackSend</span>(color: <span class="str">'good'</span>, message: <span class="str">"✅ Build #${BUILD_NUMBER} passed on ${GIT_BRANCH}"</span>)
+  }
+  <span class="val">failure</span> {
+    <span class="fn">slackSend</span>(color: <span class="str">'danger'</span>, message: <span class="str">"❌ Build #${BUILD_NUMBER} FAILED — ${BUILD_URL}"</span>)
+    <span class="fn">mail</span>(to: <span class="str">'qa-team@company.com'</span>, subject: <span class="str">"Build Failed: ${JOB_NAME}"</span>, body: <span class="str">"Check: ${BUILD_URL}"</span>)
+  }
+  <span class="val">fixed</span> {
+    <span class="fn">slackSend</span>(color: <span class="str">'good'</span>, message: <span class="str">"🟢 Build is back to green!"</span>)
+  }
+  <span class="val">cleanup</span> {
+    <span class="fn">sh</span> <span class="str">'docker system prune -f'</span>
+    <span class="fn">cleanWs</span>() <span class="cm">// Clean workspace plugin</span>
+  }
+}</pre></div>
+  </div>
+</div>
+
+<!-- S9: WHEN / CONDITIONALS -->
+<div class="section section-anchor" id="s9">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2 class="section-title">When / Conditionals</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">The <span class="ic">when{}</span> block controls whether a stage runs. All conditions must be true (AND logic by default).</p>
+
+  <div class="two-col">
+    <div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Condition</th><th>Syntax</th><th>Use Case</th></tr>
+          <tr><td>Branch name</td><td><code>branch 'main'</code></td><td>Only on main branch</td></tr>
+          <tr><td>Branch pattern</td><td><code>branch 'feature/*'</code></td><td>All feature branches</td></tr>
+          <tr><td>Environment var</td><td><code>environment name:'X', value:'Y'</code></td><td>Env-based condition</td></tr>
+          <tr><td>Expression</td><td><code>expression { return params.X == 'Y' }</code></td><td>Any Groovy logic</td></tr>
+          <tr><td>Change type</td><td><code>changeRequest()</code></td><td>Only on PRs</td></tr>
+          <tr><td>Tag</td><td><code>tag 'v*'</code></td><td>Only on version tags</td></tr>
+          <tr><td>Not</td><td><code>not { branch 'main' }</code></td><td>Invert any condition</td></tr>
+          <tr><td>All of (AND)</td><td><code>allOf { ... }</code></td><td>Multiple must be true</td></tr>
+          <tr><td>Any of (OR)</td><td><code>anyOf { ... }</code></td><td>At least one must be true</td></tr>
+          <tr><td>File exists</td><td><code>fileExists 'config.yaml'</code></td><td>Only if file present</td></tr>
+          <tr><td>Build cause</td><td><code>triggeredBy 'TimerTrigger'</code></td><td>Only if triggered by cron</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">when{} Examples</span>
+        </div>
+        <div class="code-body"><pre><span class="cm">// Only deploy on main branch</span>
+<span class="fn">stage</span>(<span class="str">'Deploy Prod'</span>) {
+  <span class="fn">when</span> { <span class="fn">branch</span> <span class="str">'main'</span> }
+  <span class="fn">steps</span> { <span class="fn">sh</span> <span class="str">'./deploy.sh prod'</span> }
+}
+
+<span class="cm">// Run only if param is set</span>
+<span class="fn">stage</span>(<span class="str">'Smoke Tests'</span>) {
+  <span class="fn">when</span> {
+    <span class="fn">expression</span> { params.RUN_SMOKE == <span class="val">true</span> }
+  }
+  <span class="fn">steps</span> { <span class="fn">sh</span> <span class="str">'npm run smoke'</span> }
+}
+
+<span class="cm">// Combined conditions (AND)</span>
+<span class="fn">stage</span>(<span class="str">'Release'</span>) {
+  <span class="fn">when</span> {
+    <span class="fn">allOf</span> {
+      <span class="fn">branch</span> <span class="str">'main'</span>
+      <span class="fn">environment</span> name: <span class="str">'CI'</span>, value: <span class="str">'true'</span>
+    }
+  }
+}
+
+<span class="cm">// OR condition</span>
+<span class="fn">stage</span>(<span class="str">'Notify'</span>) {
+  <span class="fn">when</span> {
+    <span class="fn">anyOf</span> {
+      <span class="fn">branch</span> <span class="str">'main'</span>
+      <span class="fn">branch</span> <span class="str">'release/*'</span>
+    }
+  }
+}
+
+<span class="cm">// Only on Pull Requests</span>
+<span class="fn">stage</span>(<span class="str">'PR Check'</span>) {
+  <span class="fn">when</span> { <span class="fn">changeRequest</span>() }
+  <span class="fn">steps</span> { <span class="fn">sh</span> <span class="str">'npm run lint'</span> }
+}</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S10: PARALLEL -->
+<div class="section section-anchor" id="s10">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2 class="section-title">Parallel Execution</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Run multiple stages simultaneously to drastically reduce pipeline execution time.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Parallel Stages</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">stage</span>(<span class="str">'Test Suite'</span>) {
+  <span class="fn">parallel</span> {
+
+    <span class="fn">stage</span>(<span class="str">'Chrome Tests'</span>) {
+      <span class="fn">agent</span> { <span class="fn">label</span> <span class="str">'agent-1'</span> }
+      <span class="fn">steps</span> {
+        <span class="fn">sh</span> <span class="str">'npx playwright test --project=chromium'</span>
+      }
+    }
+
+    <span class="fn">stage</span>(<span class="str">'Firefox Tests'</span>) {
+      <span class="fn">agent</span> { <span class="fn">label</span> <span class="str">'agent-2'</span> }
+      <span class="fn">steps</span> {
+        <span class="fn">sh</span> <span class="str">'npx playwright test --project=firefox'</span>
+      }
+    }
+
+    <span class="fn">stage</span>(<span class="str">'Safari Tests'</span>) {
+      <span class="fn">agent</span> { <span class="fn">label</span> <span class="str">'agent-3'</span> }
+      <span class="fn">steps</span> {
+        <span class="fn">sh</span> <span class="str">'npx playwright test --project=webkit'</span>
+      }
+    }
+
+  }
+}
+
+<span class="cm">// Fail fast: stop all if one fails</span>
+<span class="fn">stage</span>(<span class="str">'Parallel with Failfast'</span>) {
+  <span class="fn">failFast</span> <span class="val">true</span>
+  <span class="fn">parallel</span> {
+    <span class="fn">stage</span>(<span class="str">'A'</span>) { <span class="fn">steps</span> { <span class="fn">sh</span> <span class="str">'test-a.sh'</span> } }
+    <span class="fn">stage</span>(<span class="str">'B'</span>) { <span class="fn">steps</span> { <span class="fn">sh</span> <span class="str">'test-b.sh'</span> } }
+  }
+}</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Dynamic Parallel (Matrix)</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">matrix{} — Auto-generate parallel stages</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">stage</span>(<span class="str">'Cross-Browser Tests'</span>) {
+  <span class="fn">matrix</span> {
+    <span class="fn">axes</span> {
+      <span class="fn">axis</span> {
+        name: <span class="str">'BROWSER'</span>
+        values: <span class="str">'chromium'</span>, <span class="str">'firefox'</span>, <span class="str">'webkit'</span>
+      }
+      <span class="fn">axis</span> {
+        name: <span class="str">'OS'</span>
+        values: <span class="str">'linux'</span>, <span class="str">'windows'</span>
+      }
+    }
+
+    <span class="cm">// Exclude specific combos</span>
+    <span class="fn">excludes</span> {
+      <span class="fn">exclude</span> {
+        <span class="fn">axis</span> { name: <span class="str">'BROWSER'</span>; values: <span class="str">'webkit'</span> }
+        <span class="fn">axis</span> { name: <span class="str">'OS'</span>; values: <span class="str">'linux'</span> }
+      }
+    }
+
+    <span class="fn">stages</span> {
+      <span class="fn">stage</span>(<span class="str">'Run'</span>) {
+        <span class="fn">steps</span> {
+          <span class="fn">sh</span> <span class="str">"npx playwright test --project=${BROWSER}"</span>
+        }
+      }
+    }
+  }
+}</pre></div>
+      </div>
+
+      <div class="callout callout-tip" style="margin-top:16px;">
+        <div class="callout-label">⚡ Speed Impact</div>
+        Running 3 browser suites in parallel cuts test time by ~66%. A 30-minute suite becomes ~10 minutes.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S11: SHARED LIBRARIES -->
+<div class="section section-anchor" id="s11">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <h2 class="section-title">Shared Libraries</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Shared Libraries let you extract reusable pipeline code into a separate Git repo and import it across all your Jenkinsfiles — DRY principle for CI/CD.</p>
+
+  <div class="two-col">
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Library Repo Structure</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">jenkins-shared-library/</span>
+        </div>
+        <div class="code-body"><pre>jenkins-shared-library/
+├── vars/
+│   ├── deployApp.groovy      <span class="cm">← Global functions</span>
+│   ├── runPlaywright.groovy
+│   └── sendSlack.groovy
+├── src/
+│   └── org/company/
+│       └── Utils.groovy      <span class="cm">← Classes</span>
+└── resources/
+    └── scripts/
+        └── setup.sh          <span class="cm">← Non-Groovy files</span></pre></div>
+      </div>
+
+      <div class="code-block" style="margin-top:16px;">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">vars/runPlaywright.groovy</span>
+        </div>
+        <div class="code-body"><pre><span class="cm">// Define a reusable function</span>
+<span class="kw">def</span> <span class="fn">call</span>(String browser = <span class="str">'chromium'</span>, String env = <span class="str">'staging'</span>) {
+  <span class="fn">sh</span> <span class="str">"""
+    npm install
+    npx playwright install
+    npx playwright test \\
+      --project=${browser} \\
+      --reporter=html
+  """</span>
+  <span class="fn">publishHTML</span>([
+    reportDir: <span class="str">'playwright-report'</span>,
+    reportFiles: <span class="str">'index.html'</span>
+  ])
+}</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Using in Jenkinsfile</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Jenkinsfile · Using Shared Library</span>
+        </div>
+        <div class="code-body"><pre><span class="cm">// Import at the top (versioned!)</span>
+<span class="fn">@Library</span>(<span class="str">'jenkins-shared-library@main'</span>) _
+
+<span class="fn">pipeline</span> {
+  <span class="fn">agent</span> <span class="val">any</span>
+
+  <span class="fn">stages</span> {
+    <span class="fn">stage</span>(<span class="str">'Test'</span>) {
+      <span class="fn">steps</span> {
+        <span class="cm">// Call the shared function</span>
+        <span class="fn">runPlaywright</span>(<span class="str">'chromium'</span>, <span class="str">'staging'</span>)
+      }
+    }
+
+    <span class="fn">stage</span>(<span class="str">'Deploy'</span>) {
+      <span class="fn">steps</span> {
+        <span class="fn">deployApp</span>(<span class="str">'production'</span>)
+      }
+    }
+  }
+}
+
+<span class="cm">// OR: Import multiple libraries</span>
+<span class="fn">@Library</span>([<span class="str">'shared-lib@v1.2'</span>, <span class="str">'tools-lib'</span>]) _</pre></div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:16px;">
+        <div class="callout-label">📌 Setup in Jenkins</div>
+        Go to <strong>Manage Jenkins → System → Global Pipeline Libraries</strong> and add your library repo URL, default version, and a name to reference it with <span class="ic">@Library</span>.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S12: CREDENTIALS -->
+<div class="section section-anchor" id="s12">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <h2 class="section-title">Credentials Management</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Credential Type</th><th>Use Case</th></tr>
+          <tr><td>Secret Text</td><td>API keys, tokens</td></tr>
+          <tr><td>Username + Password</td><td>Docker registry, databases</td></tr>
+          <tr><td>SSH Private Key</td><td>SSH into servers</td></tr>
+          <tr><td>Secret File</td><td>Config files, .env files</td></tr>
+          <tr><td>Certificate</td><td>TLS/SSL certificates</td></tr>
+          <tr><td>AWS Credentials</td><td>AWS access key + secret</td></tr>
+        </table>
+      </div>
+
+      <div style="margin-top:20px;font-size:13px;font-weight:700;margin-bottom:12px;">In environment{} block</div>
+      <div class="code-block">
+        <div class="code-body" style="padding:16px"><pre><span class="fn">environment</span> {
+  <span class="cm">// Secret text → single env var</span>
+  <span class="env">API_KEY</span> = <span class="fn">credentials</span>(<span class="str">'my-api-key'</span>)
+
+  <span class="cm">// Username+password → two vars auto-created:
+  // DOCKER_CREDS_USR and DOCKER_CREDS_PSW</span>
+  <span class="env">DOCKER_CREDS</span> = <span class="fn">credentials</span>(<span class="str">'docker-hub'</span>)
+}</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">withCredentials{} — In Steps</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">All Credential Binding Types</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">steps</span> {
+  <span class="fn">withCredentials</span>([
+
+    <span class="cm">// Secret text</span>
+    <span class="fn">string</span>(credentialsId: <span class="str">'my-token'</span>, variable: <span class="str">'TOKEN'</span>),
+
+    <span class="cm">// Username + Password</span>
+    <span class="fn">usernamePassword</span>(
+      credentialsId: <span class="str">'docker-creds'</span>,
+      usernameVariable: <span class="str">'DOCKER_USER'</span>,
+      passwordVariable: <span class="str">'DOCKER_PASS'</span>
+    ),
+
+    <span class="cm">// SSH Key</span>
+    <span class="fn">sshUserPrivateKey</span>(
+      credentialsId: <span class="str">'deploy-key'</span>,
+      keyFileVariable: <span class="str">'SSH_KEY'</span>
+    ),
+
+    <span class="cm">// Secret File</span>
+    <span class="fn">file</span>(credentialsId: <span class="str">'env-file'</span>, variable: <span class="str">'ENV_FILE'</span>),
+
+    <span class="cm">// AWS</span>
+    <span class="fn">aws</span>(credentialsId: <span class="str">'aws-creds'</span>,
+        accessKeyVariable: <span class="str">'AWS_ACCESS_KEY'</span>,
+        secretKeyVariable: <span class="str">'AWS_SECRET_KEY'</span>)
+
+  ]) {
+    <span class="fn">sh</span> <span class="str">"""
+      echo ${TOKEN} | docker login -u ${DOCKER_USER} --password-stdin
+      ssh -i ${SSH_KEY} user@server 'deploy.sh'
+    """</span>
+  }
+}</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S13: JOB TYPES -->
+<div class="section section-anchor" id="s13">
+  <div class="section-header">
+    <span class="section-num">13</span>
+    <h2 class="section-title">Job Types Comparison</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Job Type</th><th>Config</th><th>Jenkinsfile</th><th>Multi-branch</th><th>Best For</th></tr>
+      <tr>
+        <td><span class="tag tag-blue">Freestyle</span></td>
+        <td>Jenkins UI only</td>
+        <td>❌ No</td>
+        <td>❌ No</td>
+        <td>Simple one-off scripts, beginners</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">Pipeline</span></td>
+        <td>Jenkinsfile in repo</td>
+        <td>✅ Yes</td>
+        <td>❌ Single branch</td>
+        <td>Single project CI/CD, professional teams</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">Multibranch Pipeline</span></td>
+        <td>Jenkinsfile per branch</td>
+        <td>✅ Yes</td>
+        <td>✅ Auto-discover</td>
+        <td>Teams with feature branches, PR validation</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">Organization Folder</span></td>
+        <td>Scans entire GitHub Org</td>
+        <td>✅ Yes</td>
+        <td>✅ All repos</td>
+        <td>Large orgs — auto-CI for every repo in org</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">Matrix Project</span></td>
+        <td>Freestyle + axis config</td>
+        <td>❌ No</td>
+        <td>❌ No</td>
+        <td>Cross-platform builds (old style)</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- S14: KEY PLUGINS -->
+<div class="section section-anchor" id="s14">
+  <div class="section-header">
+    <span class="section-num">14</span>
+    <h2 class="section-title">Essential Plugins</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(88,166,255,0.1)">🐙</div>
+        <div><div class="card-title">GitHub / GitLab Plugin</div><div class="card-subtitle">SCM integration</div></div>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text2)">Webhook integration, PR status checks, branch detection. Required for any GitHub/GitLab-based workflow.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(210,73,57,0.1)">🐳</div>
+        <div><div class="card-title">Docker Pipeline</div><div class="card-subtitle">Container agents</div></div>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text2)">Run pipelines inside Docker containers. <span class="ic">agent { docker { image '...' } }</span> syntax. Auto pull, run, destroy.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(63,185,80,0.1)">📊</div>
+        <div><div class="card-title">Allure / HTML Publisher</div><div class="card-subtitle">Test reporting</div></div>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text2)">Publish Allure or custom HTML test reports directly in Jenkins UI. Critical for SDET workflows.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(210,168,255,0.1)">🔑</div>
+        <div><div class="card-title">Credentials Binding</div><div class="card-subtitle">Secret management</div></div>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text2)">Inject stored credentials into pipelines safely. Works with <span class="ic">withCredentials()</span> step.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(240,136,62,0.1)">💬</div>
+        <div><div class="card-title">Slack Notification</div><div class="card-subtitle">Team alerts</div></div>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text2)">Send build status to Slack channels. <span class="ic">slackSend()</span> step with color coding for pass/fail.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(88,166,255,0.1)">🌿</div>
+        <div><div class="card-title">Git Parameter</div><div class="card-subtitle">Branch dropdown</div></div>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text2)">Add a branch/tag selector dropdown to parameterized builds. The plugin behind that branch dropdown you use!</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(63,185,80,0.1)">🧹</div>
+        <div><div class="card-title">Workspace Cleanup</div><div class="card-subtitle">Disk management</div></div>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text2)">Auto-clean workspace before/after builds. <span class="ic">cleanWs()</span> step. Prevents stale file issues.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(210,73,57,0.1)">☸️</div>
+        <div><div class="card-title">Kubernetes Plugin</div><div class="card-subtitle">Dynamic agents</div></div>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text2)">Spin up Jenkins agents as K8s pods. Auto-scale based on build queue. Industry standard for cloud-native CI.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(240,136,62,0.1)">🔐</div>
+        <div><div class="card-title">HashiCorp Vault</div><div class="card-subtitle">Enterprise secrets</div></div>
+      </div>
+      <div class="card-body" style="font-size:12px;color:var(--text2)">Pull secrets from Vault dynamically. Better than storing credentials in Jenkins for large orgs.</div>
+    </div>
+  </div>
+</div>
+
+<!-- S15: QA / SDET PIPELINES -->
+<div class="section section-anchor" id="s15">
+  <div class="section-header">
+    <span class="section-num">15</span>
+    <h2 class="section-title">QA / SDET Pipeline — Full Example</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">A production-ready Playwright pipeline with parameters, parallel execution, reporting, and notifications.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <span class="code-lang">Jenkinsfile · Production QA Pipeline</span>
+    </div>
+    <div class="code-body"><pre><span class="fn">pipeline</span> {
+  <span class="fn">agent</span> {
+    <span class="fn">docker</span> { <span class="fn">image</span> <span class="str">'mcr.microsoft.com/playwright:v1.40.0-jammy'</span> }
+  }
+
+  <span class="fn">parameters</span> {
+    <span class="fn">gitParameter</span>(name: <span class="str">'BRANCH_NAME'</span>, type: <span class="str">'PT_BRANCH'</span>, defaultValue: <span class="str">'main'</span>)
+    <span class="fn">choice</span>(name: <span class="str">'ENVIRONMENT'</span>, choices: [<span class="str">'staging'</span>, <span class="str">'qa'</span>, <span class="str">'prod'</span>], description: <span class="str">'Target environment'</span>)
+    <span class="fn">choice</span>(name: <span class="str">'SUITE'</span>, choices: [<span class="str">'regression'</span>, <span class="str">'smoke'</span>, <span class="str">'sanity'</span>], description: <span class="str">'Test suite'</span>)
+    <span class="fn">booleanParam</span>(name: <span class="str">'PARALLEL'</span>, defaultValue: <span class="val">true</span>, description: <span class="str">'Run browsers in parallel?'</span>)
+  }
+
+  <span class="fn">environment</span> {
+    <span class="env">BASE_URL</span>     = <span class="str">"https://${params.ENVIRONMENT}.myapp.com"</span>
+    <span class="env">REPORT_DIR</span>   = <span class="str">'playwright-report'</span>
+    <span class="env">SLACK_CHANNEL</span>= <span class="str">'#qa-alerts'</span>
+  }
+
+  <span class="fn">triggers</span> {
+    <span class="cm">// Nightly regression at 1AM Mon-Fri</span>
+    <span class="fn">cron</span>(<span class="str">'H 1 * * 1-5'</span>)
+  }
+
+  <span class="fn">options</span> {
+    <span class="fn">timeout</span>(time: <span class="num">2</span>, unit: <span class="str">'HOURS'</span>)
+    <span class="fn">buildDiscarder</span>(<span class="fn">logRotator</span>(numToKeepStr: <span class="str">'30'</span>))
+    <span class="fn">timestamps</span>()
+  }
+
+  <span class="fn">stages</span> {
+
+    <span class="fn">stage</span>(<span class="str">'Checkout'</span>) {
+      <span class="fn">steps</span> {
+        <span class="fn">git</span> branch: <span class="str">"${params.BRANCH_NAME}"</span>, url: <span class="str">'https://github.com/org/app.git'</span>
+      }
+    }
+
+    <span class="fn">stage</span>(<span class="str">'Install'</span>) {
+      <span class="fn">steps</span> {
+        <span class="fn">sh</span> <span class="str">'npm ci'</span>
+      }
+    }
+
+    <span class="fn">stage</span>(<span class="str">'Tests — Sequential'</span>) {
+      <span class="fn">when</span> {
+        <span class="fn">expression</span> { !params.PARALLEL }
+      }
+      <span class="fn">steps</span> {
+        <span class="fn">sh</span> <span class="str">"""
+          BASE_URL=${BASE_URL} npx playwright test \\
+            --grep=@${params.SUITE} \\
+            --reporter=html,junit
+        """</span>
+      }
+    }
+
+    <span class="fn">stage</span>(<span class="str">'Tests — Parallel'</span>) {
+      <span class="fn">when</span> {
+        <span class="fn">expression</span> { params.PARALLEL == <span class="val">true</span> }
+      }
+      <span class="fn">parallel</span> {
+        <span class="fn">stage</span>(<span class="str">'Chromium'</span>) {
+          <span class="fn">steps</span> {
+            <span class="fn">sh</span> <span class="str">"BASE_URL=${BASE_URL} npx playwright test --project=chromium --grep=@${params.SUITE}"</span>
+          }
+        }
+        <span class="fn">stage</span>(<span class="str">'Firefox'</span>) {
+          <span class="fn">steps</span> {
+            <span class="fn">sh</span> <span class="str">"BASE_URL=${BASE_URL} npx playwright test --project=firefox --grep=@${params.SUITE}"</span>
+          }
+        }
+        <span class="fn">stage</span>(<span class="str">'WebKit'</span>) {
+          <span class="fn">steps</span> {
+            <span class="fn">sh</span> <span class="str">"BASE_URL=${BASE_URL} npx playwright test --project=webkit --grep=@${params.SUITE}"</span>
+          }
+        }
+      }
+    }
+
+    <span class="fn">stage</span>(<span class="str">'Deploy to Prod'</span>) {
+      <span class="fn">when</span> {
+        <span class="fn">allOf</span> {
+          <span class="fn">branch</span> <span class="str">'main'</span>
+          <span class="fn">expression</span> { params.ENVIRONMENT == <span class="str">'prod'</span> }
+        }
+      }
+      <span class="fn">steps</span> {
+        <span class="fn">input</span> message: <span class="str">'Approve production deployment?'</span>, ok: <span class="str">'Deploy'</span>
+        <span class="fn">sh</span> <span class="str">'./deploy.sh prod'</span>
+      }
+    }
+
+  }
+
+  <span class="fn">post</span> {
+    <span class="val">always</span> {
+      <span class="fn">junit</span> <span class="str">'**/junit-results.xml'</span>
+      <span class="fn">publishHTML</span>([
+        allowMissing: <span class="val">false</span>,
+        reportDir: <span class="str">"${REPORT_DIR}"</span>,
+        reportFiles: <span class="str">'index.html'</span>,
+        reportName: <span class="str">'Playwright Report'</span>,
+        keepAll: <span class="val">true</span>
+      ])
+    }
+    <span class="val">success</span> {
+      <span class="fn">slackSend</span>(
+        channel: <span class="str">"${SLACK_CHANNEL}"</span>,
+        color: <span class="str">'good'</span>,
+        message: <span class="str">"✅ *${params.SUITE}* passed on *${params.ENVIRONMENT}* | Branch: ${params.BRANCH_NAME} | Build: #${BUILD_NUMBER} | ${BUILD_URL}"</span>
+      )
+    }
+    <span class="val">failure</span> {
+      <span class="fn">slackSend</span>(
+        channel: <span class="str">"${SLACK_CHANNEL}"</span>,
+        color: <span class="str">'danger'</span>,
+        message: <span class="str">"❌ *${params.SUITE}* FAILED on *${params.ENVIRONMENT}* | Build: #${BUILD_NUMBER} | ${BUILD_URL}"</span>
+      )
+    }
+    <span class="val">cleanup</span> {
+      <span class="fn">cleanWs</span>()
+    }
+  }
+}</pre></div>
+  </div>
+</div>
+
+<!-- S16: SCRIPTED VS DECLARATIVE -->
+<div class="section section-anchor" id="s16">
+  <div class="section-header">
+    <span class="section-num">16</span>
+    <h2 class="section-title">Scripted vs Declarative</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px; color:var(--accent3)">✅ Declarative (Recommended)</div>
+      <div class="code-block">
+        <div class="code-body" style="padding:16px"><pre><span class="fn">pipeline</span> {
+  <span class="fn">agent</span> <span class="val">any</span>
+
+  <span class="fn">stages</span> {
+    <span class="fn">stage</span>(<span class="str">'Build'</span>) {
+      <span class="fn">steps</span> {
+        <span class="fn">sh</span> <span class="str">'mvn package'</span>
+      }
+    }
+
+    <span class="fn">stage</span>(<span class="str">'Test'</span>) {
+      <span class="fn">steps</span> {
+        <span class="fn">sh</span> <span class="str">'mvn test'</span>
+      }
+    }
+  }
+
+  <span class="fn">post</span> {
+    <span class="val">failure</span> {
+      <span class="fn">mail</span> to: <span class="str">'qa@co.com'</span>
+    }
+  }
+}</pre></div>
+      </div>
+      <div style="margin-top:12px;">
+        <span class="tag tag-green">Structured</span>
+        <span class="tag tag-green">Readable</span>
+        <span class="tag tag-green">Validated</span>
+        <span class="tag tag-green">post{} support</span>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px; color:var(--accent2)">⚡ Scripted (Advanced)</div>
+      <div class="code-block">
+        <div class="code-body" style="padding:16px"><pre><span class="fn">node</span> {
+
+  <span class="fn">stage</span>(<span class="str">'Build'</span>) {
+    <span class="fn">sh</span> <span class="str">'mvn package'</span>
+  }
+
+  <span class="fn">stage</span>(<span class="str">'Test'</span>) {
+    <span class="kw">try</span> {
+      <span class="fn">sh</span> <span class="str">'mvn test'</span>
+    } <span class="kw">catch</span> (e) {
+      <span class="cm">// Full Groovy exception handling</span>
+      <span class="fn">currentBuild</span>.result = <span class="str">'UNSTABLE'</span>
+      <span class="fn">throw</span> e
+    } <span class="kw">finally</span> {
+      <span class="cm">// Always runs</span>
+      <span class="fn">junit</span> <span class="str">'**/*.xml'</span>
+    }
+  }
+
+}</pre></div>
+      </div>
+      <div style="margin-top:12px;">
+        <span class="tag tag-blue">Full Groovy</span>
+        <span class="tag tag-blue">Flexible loops</span>
+        <span class="tag tag-blue">Complex logic</span>
+        <span class="tag tag-red">Harder to read</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-tip" style="margin-top:24px;">
+    <div class="callout-label">💡 Best Practice</div>
+    Use <strong>Declarative</strong> by default. Drop into <span class="ic">script{}</span> blocks inside Declarative when you need Groovy logic. Never start a new project with pure Scripted syntax.
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">
+    <div style="font-weight:700;color:var(--text);margin-bottom:4px;">Jenkins Complete Cheat Sheet</div>
+    <div>Built for SDETs & DevOps Engineers · 2024</div>
+  </div>
+  <div class="footer-right">
+    <span>⭐ Star on GitHub</span>
+    <span>·</span>
+    <span>Declarative Pipeline v2+</span>
+    <span>·</span>
+    <span>Jenkins LTS</span>
+  </div>
+</div>
+
+<script>
+(function() {
+  const toggle = document.getElementById('themeToggle');
+  const icon = document.getElementById('toggleIcon');
+  const body = document.body;
+
+  const saved = localStorage.getItem('jenkins-cs-theme');
+  const theme = saved || 'light';
+  body.setAttribute('data-theme', theme);
+  icon.textContent = theme === 'dark' ? '🌙' : '☀️';
+
+  toggle.addEventListener('click', function() {
+    const current = body.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    body.setAttribute('data-theme', next);
+    icon.textContent = next === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('jenkins-cs-theme', next);
+  });
+})();
+</script>
+</body>
+</html>
