@@ -1,0 +1,2708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karate API Assertions — The Ultimate Cheat Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #0f1520;
+    --surface2: #151d2e;
+    --surface3: #1a2438;
+    --border: #1e2d47;
+    --accent: #00d4aa;
+    --accent2: #58a6ff;
+    --accent3: #3fb950;
+    --accent4: #ff7b72;
+    --accent5: #d2a8ff;
+    --accent6: #f0883e;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+    --karate-green: #00d4aa;
+    --karate-dark: #0a1a15;
+    --code-bg: #0d1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0e17 0%, #0a1a2e 50%, #0a0e17 100%);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,170,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(88,166,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(0,212,170,0.12);
+    border: 1px solid rgba(0,212,170,0.4);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 6vw, 80px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 .green { color: var(--karate-green); }
+  .hero h1 .dim { color: var(--text3); font-weight: 400; }
+
+  .hero-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 40px;
+    max-width: 700px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .meta-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent3);
+  }
+
+  /* SECTION */
+  .section {
+    padding: 60px 60px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 2px;
+  }
+
+  .section-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* FLOW */
+  .flow-container {
+    padding: 60px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .flow-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 50px;
+  }
+
+  .pipeline-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 20px;
+  }
+
+  .flow-stage {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .stage-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    min-width: 150px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .stage-box:hover {
+    border-color: var(--accent);
+    background: var(--surface3);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,212,170,0.1);
+  }
+
+  .stage-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+
+  .stage-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stage-desc { font-size: 11px; color: var(--text3); line-height: 1.4; }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: var(--text3);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .flow-arrow-line {
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(to right, var(--border), var(--accent));
+    position: relative;
+  }
+
+  .flow-arrow-line::after {
+    content: '\25B6';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 10px;
+  }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+
+  .code-dots { display: flex; gap: 6px; }
+  .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .code-dot:nth-child(1) { background: #ff5f57; }
+  .code-dot:nth-child(2) { background: #ffbd2e; }
+  .code-dot:nth-child(3) { background: #28ca41; }
+
+  .code-body { padding: 20px; overflow-x: auto; }
+  .code-body pre { white-space: pre; }
+
+  /* SYNTAX */
+  .kw { color: #ff7b72; }
+  .str { color: #a5d6ff; }
+  .fn { color: #d2a8ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .val { color: #79c0ff; }
+  .num { color: #f2cc60; }
+  .op { color: #58a6ff; }
+  .env { color: #3fb950; }
+  .marker { color: #00d4aa; }
+
+  /* CARDS */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .card:hover {
+    border-color: var(--border);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
+  .card-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .card-body { padding: 16px 20px; }
+
+  /* OPTION ROWS */
+  .option-row {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(30,45,71,0.5);
+    align-items: flex-start;
+  }
+
+  .option-row:last-child { border-bottom: none; }
+
+  .option-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(88,166,255,0.08);
+    padding: 2px 8px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .option-val { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  /* TABLES */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin: 16px 0;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+  th {
+    background: var(--surface2);
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(30,45,71,0.5);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  td code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(88,166,255,0.08);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* TAGS */
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin: 2px;
+  }
+
+  .tag-red { background: rgba(210,73,57,0.15); color: #ff7b72; border: 1px solid rgba(210,73,57,0.3); }
+  .tag-blue { background: rgba(88,166,255,0.1); color: #58a6ff; border: 1px solid rgba(88,166,255,0.25); }
+  .tag-green { background: rgba(63,185,80,0.1); color: #3fb950; border: 1px solid rgba(63,185,80,0.25); }
+  .tag-purple { background: rgba(210,168,255,0.1); color: #d2a8ff; border: 1px solid rgba(210,168,255,0.25); }
+  .tag-orange { background: rgba(240,136,62,0.1); color: #f0883e; border: 1px solid rgba(240,136,62,0.25); }
+  .tag-teal { background: rgba(0,212,170,0.1); color: #00d4aa; border: 1px solid rgba(0,212,170,0.25); }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 3px solid;
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+
+  .callout-tip { border-color: var(--accent3); background: rgba(63,185,80,0.05); }
+  .callout-warn { border-color: var(--accent6); background: rgba(240,136,62,0.05); }
+  .callout-info { border-color: var(--accent2); background: rgba(88,166,255,0.05); }
+
+  .callout-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .callout-tip .callout-label { color: var(--accent3); }
+  .callout-warn .callout-label { color: var(--accent6); }
+  .callout-info .callout-label { color: var(--accent2); }
+
+  /* COLS */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  @media (max-width: 900px) {
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    .section, .flow-container { padding: 40px 24px; }
+    .hero { padding: 50px 24px 40px; }
+    .toc { margin: 40px 24px; }
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin: 40px 60px;
+  }
+
+  .toc-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 16px;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text2);
+    text-decoration: none;
+    padding: 4px 0;
+    transition: color 0.2s;
+  }
+
+  .toc-item:hover { color: var(--accent); }
+
+  .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+  }
+
+  /* INLINE CODE */
+  .ic {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    background: rgba(88,166,255,0.08);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  .section-anchor { scroll-margin-top: 20px; }
+
+  /* MARKER GRID */
+  .marker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .marker-card {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    transition: all 0.3s;
+  }
+
+  .marker-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  }
+
+  .marker-card-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .marker-card-desc {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.5;
+  }
+
+  /* AGENT GRID (reuse for assertion category) */
+  .assert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .assert-card {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .assert-card-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .assert-card-body {
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  .footer {
+    padding: 40px 60px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-left {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .footer-right {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* LIGHT THEME */
+  [data-theme="light"] {
+    --bg: #f4f6fa;
+    --surface: #ffffff;
+    --surface2: #eef1f6;
+    --surface3: #e4e8ef;
+    --border: #d0d7de;
+    --accent: #0a8c6e;
+    --accent2: #0969da;
+    --accent3: #1a7f37;
+    --accent4: #cf222e;
+    --accent5: #8250df;
+    --accent6: #c05620;
+    --text: #1f2328;
+    --text2: #59636e;
+    --text3: #818b98;
+    --karate-green: #0a8c6e;
+    --karate-dark: #e8f0ed;
+    --code-bg: #f6f8fa;
+  }
+
+  [data-theme="light"] .hero {
+    background: linear-gradient(135deg, #f4f6fa 0%, #e8f0f5 50%, #f4f6fa 100%);
+  }
+
+  [data-theme="light"] .hero::before {
+    background: radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 70%);
+  }
+
+  [data-theme="light"] .hero::after {
+    background: radial-gradient(circle, rgba(88,166,255,0.06) 0%, transparent 70%);
+  }
+
+  [data-theme="light"] .hero-badge {
+    background: rgba(0,212,170,0.08);
+    border-color: rgba(0,212,170,0.25);
+  }
+
+  [data-theme="light"] .option-row { border-bottom-color: rgba(208,215,222,0.6); }
+  [data-theme="light"] .option-key { background: rgba(9,105,218,0.07); }
+  [data-theme="light"] td code, [data-theme="light"] .ic { background: rgba(9,105,218,0.07); }
+
+  [data-theme="light"] .tag-red { background: rgba(207,34,46,0.07); color: #cf222e; border-color: rgba(207,34,46,0.2); }
+  [data-theme="light"] .tag-blue { background: rgba(9,105,218,0.07); color: #0969da; border-color: rgba(9,105,218,0.2); }
+  [data-theme="light"] .tag-green { background: rgba(26,127,55,0.07); color: #1a7f37; border-color: rgba(26,127,55,0.2); }
+  [data-theme="light"] .tag-purple { background: rgba(130,80,223,0.07); color: #8250df; border-color: rgba(130,80,223,0.2); }
+  [data-theme="light"] .tag-orange { background: rgba(192,86,32,0.07); color: #c05620; border-color: rgba(192,86,32,0.2); }
+  [data-theme="light"] .tag-teal { background: rgba(10,140,110,0.07); color: #0a8c6e; border-color: rgba(10,140,110,0.2); }
+
+  [data-theme="light"] .card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+  [data-theme="light"] .stage-box:hover { box-shadow: 0 12px 40px rgba(10,140,110,0.08); }
+  [data-theme="light"] .flow-arrow-line { background: linear-gradient(to right, var(--border), var(--accent)); }
+  [data-theme="light"] tr:hover td { background: rgba(0,0,0,0.02); }
+
+  [data-theme="light"] .callout-tip { background: rgba(26,127,55,0.04); }
+  [data-theme="light"] .callout-warn { background: rgba(192,86,32,0.04); }
+  [data-theme="light"] .callout-info { background: rgba(9,105,218,0.04); }
+
+  [data-theme="light"] .kw { color: #cf222e; }
+  [data-theme="light"] .str { color: #0550ae; }
+  [data-theme="light"] .fn { color: #8250df; }
+  [data-theme="light"] .cm { color: #6e7781; }
+  [data-theme="light"] .val { color: #0969da; }
+  [data-theme="light"] .num { color: #953800; }
+  [data-theme="light"] .op { color: #0969da; }
+  [data-theme="light"] .env { color: #1a7f37; }
+  [data-theme="light"] .marker { color: #0a8c6e; }
+
+  [data-theme="light"] .marker-card:hover { border-color: var(--accent); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    width: 60px;
+    height: 32px;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #1a1a3e 0%, #0f1520 100%);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .theme-toggle:hover { transform: scale(1.08); box-shadow: 0 4px 20px rgba(0,212,170,0.25), inset 0 1px 0 rgba(255,255,255,0.08); }
+  .theme-toggle:active { transform: scale(0.95); }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e8e0d0 0%, #f5eedd 100%);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  .toggle-thumb .icon { font-size: 14px; line-height: 1; transition: all 0.3s ease; }
+
+  .toggle-stars {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .toggle-star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; opacity: 0.7; }
+  .toggle-star:nth-child(1) { top: 7px; right: 10px; }
+  .toggle-star:nth-child(2) { top: 14px; right: 16px; width: 1.5px; height: 1.5px; opacity: 0.5; }
+  .toggle-star:nth-child(3) { top: 22px; right: 8px; width: 1px; height: 1px; opacity: 0.4; }
+
+  [data-theme="light"] .theme-toggle {
+    background: linear-gradient(135deg, #87ceeb 0%, #60b3e0 100%);
+    box-shadow: 0 2px 12px rgba(96,179,224,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  [data-theme="light"] .toggle-thumb {
+    left: 31px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffb800 100%);
+    box-shadow: 0 0 10px rgba(255,200,0,0.4), 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  [data-theme="light"] .toggle-stars { opacity: 0; }
+
+  /* COPY BUTTON */
+  .code-copy {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .code-copy:hover { background: rgba(255,255,255,0.12); color: var(--accent); border-color: var(--accent); }
+  .code-copy.copied { background: rgba(0,212,170,0.15); color: var(--accent); border-color: var(--accent); }
+
+  [data-theme="light"] .code-copy { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .code-copy:hover { background: rgba(0,0,0,0.08); }
+</style>
+</head>
+<body data-theme="light">
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+  <div class="toggle-stars"><div class="toggle-star"></div><div class="toggle-star"></div><div class="toggle-star"></div></div>
+  <div class="toggle-thumb"><span class="icon" id="toggleIcon">&#127769;</span></div>
+</button>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">&#129504; The Definitive Reference</div>
+  <h1>
+    <span class="green">Karate</span><br>
+    <span class="dim">API</span> Assertions
+  </h1>
+  <p class="hero-sub">// Every assertion type, every fuzzy marker, every match variant, every JS/Java interop pattern &mdash; with examples for each. The only Karate assertion reference you'll ever need.</p>
+  <div class="hero-meta">
+    <div class="meta-item"><div class="meta-dot"></div> match / assert / karate.expect()</div>
+    <div class="meta-item"><div class="meta-dot" style="background:var(--accent2)"></div> JSON &middot; XML &middot; GraphQL &middot; gRPC</div>
+    <div class="meta-item"><div class="meta-dot" style="background:var(--accent5)"></div> Fuzzy Matching &middot; Schema Validation</div>
+    <div class="meta-item"><div class="meta-dot" style="background:var(--accent6)"></div> JavaScript &middot; Java Interop</div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-title">// Table of Contents</div>
+  <div class="toc-grid">
+    <a class="toc-item" href="#s1"><span class="toc-num">01</span> Assertion Overview</a>
+    <a class="toc-item" href="#s2"><span class="toc-num">02</span> Assertion Decision Flow</a>
+    <a class="toc-item" href="#s3"><span class="toc-num">03</span> match == &amp; match !=</a>
+    <a class="toc-item" href="#s4"><span class="toc-num">04</span> match contains &amp; Variants</a>
+    <a class="toc-item" href="#s5"><span class="toc-num">05</span> match each</a>
+    <a class="toc-item" href="#s6"><span class="toc-num">06</span> Fuzzy Matching Markers</a>
+    <a class="toc-item" href="#s7"><span class="toc-num">07</span> Schema Validation</a>
+    <a class="toc-item" href="#s8"><span class="toc-num">08</span> Self-Validation (#?) &amp; Custom Logic</a>
+    <a class="toc-item" href="#s9"><span class="toc-num">09</span> Response Variables &amp; Status</a>
+    <a class="toc-item" href="#s10"><span class="toc-num">10</span> Header, Cookie &amp; Time Assertions</a>
+    <a class="toc-item" href="#s11"><span class="toc-num">11</span> XML Assertions</a>
+    <a class="toc-item" href="#s12"><span class="toc-num">12</span> JsonPath &amp; Data Extraction</a>
+    <a class="toc-item" href="#s13"><span class="toc-num">13</span> JavaScript Function Assertions</a>
+    <a class="toc-item" href="#s14"><span class="toc-num">14</span> Java Interop Assertions</a>
+    <a class="toc-item" href="#s15"><span class="toc-num">15</span> karate.expect() &mdash; Chai-Style BDD</a>
+    <a class="toc-item" href="#s16"><span class="toc-num">16</span> Soft Assertions &amp; Labels</a>
+    <a class="toc-item" href="#s17"><span class="toc-num">17</span> Retry Until &amp; Polling</a>
+    <a class="toc-item" href="#s18"><span class="toc-num">18</span> GraphQL &amp; Async Assertions</a>
+    <a class="toc-item" href="#s19"><span class="toc-num">19</span> Data Manipulation for Assertions</a>
+    <a class="toc-item" href="#s20"><span class="toc-num">20</span> Contains Shortcuts &amp; Symbols</a>
+    <a class="toc-item" href="#s21"><span class="toc-num">21</span> Real-World Assertion Recipes</a>
+  </div>
+</div>
+
+<!-- S1: OVERVIEW -->
+<div class="section section-anchor" id="s1">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Assertion Overview</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <p style="color:var(--text2);font-size:14px;margin-bottom:20px;">Karate provides the most powerful built-in assertion engine of any API testing framework. No external libraries needed &mdash; no RestAssured, no Hamcrest, no AssertJ. Everything is built in.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-label">Key Insight</div>
+        The <span class="ic">match</span> keyword is Karate's primary assertion. Prefer it over <span class="ic">assert</span> &mdash; it gives better error messages showing expected vs actual values and supports JSON, XML, and text natively.
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="margin-bottom:12px;font-size:13px;font-weight:700;">Three Assertion Approaches:</div>
+      <div class="option-row">
+        <span class="option-key">match</span>
+        <span class="option-val">Primary assertion. Supports exact, contains, each, fuzzy markers, and deep matching. <span class="tag tag-green">Recommended</span></span>
+      </div>
+      <div class="option-row">
+        <span class="option-key">assert</span>
+        <span class="option-val">For numeric comparisons (<code style="font-family:JetBrains Mono;font-size:11px;color:#58a6ff">&gt; &lt; &gt;= &lt;=</code>) and boolean expressions only.</span>
+      </div>
+      <div class="option-row">
+        <span class="option-key">karate.expect()</span>
+        <span class="option-val">Chai-style BDD assertions for teams migrating from Postman/Mocha. <span class="tag tag-purple">v2+</span></span>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Karate &middot; Three Assertion Styles</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">Feature:</span> Assertion styles overview
+
+<span class="fn">Scenario:</span> Using match (preferred)
+  <span class="kw">Given</span> url <span class="str">'https://api.example.com/users/1'</span>
+  <span class="kw">When</span> method get
+  <span class="kw">Then</span> status <span class="num">200</span>
+  <span class="kw">And</span> <span class="fn">match</span> response.name <span class="op">==</span> <span class="str">'John Doe'</span>
+  <span class="kw">And</span> <span class="fn">match</span> response.id <span class="op">==</span> <span class="num">1</span>
+  <span class="kw">And</span> <span class="fn">match</span> response <span class="op">contains</span> { role: <span class="str">'admin'</span> }
+
+<span class="fn">Scenario:</span> Using assert (numeric only)
+  <span class="kw">*</span> <span class="fn">assert</span> responseStatus <span class="op">==</span> <span class="num">200</span>
+  <span class="kw">*</span> <span class="fn">assert</span> response.age <span class="op">&gt;</span> <span class="num">18</span>
+  <span class="kw">*</span> <span class="fn">assert</span> response.items.length <span class="op">&gt;=</span> <span class="num">1</span>
+
+<span class="fn">Scenario:</span> Using karate.expect() (Chai-style)
+  <span class="kw">*</span> karate.expect(response.name).to.equal(<span class="str">'John'</span>)
+  <span class="kw">*</span> karate.expect(response.age).to.be.above(<span class="num">18</span>)
+  <span class="kw">*</span> karate.expect(response).to.have.property(<span class="str">'email'</span>)</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S2: DECISION FLOW -->
+<div class="flow-container section-anchor" id="s2">
+  <div class="flow-title-row">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Assertion Decision Flow</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="pipeline-flow">
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">&#128232;</span>
+        <span class="stage-name">Response</span>
+        <span class="stage-desc">Get API response (JSON / XML / text)</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">&#9989;</span>
+        <span class="stage-name">Status</span>
+        <span class="stage-desc">Then status 200</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">&#128269;</span>
+        <span class="stage-name">Exact?</span>
+        <span class="stage-desc">match == for full equality</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">&#128230;</span>
+        <span class="stage-name">Partial?</span>
+        <span class="stage-desc">match contains for subset</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">&#128300;</span>
+        <span class="stage-name">Type?</span>
+        <span class="stage-desc">#string #number #uuid etc.</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">&#128736;</span>
+        <span class="stage-name">Custom?</span>
+        <span class="stage-desc">#? JS expression / Java util</span>
+      </div>
+    </div>
+    <div class="flow-arrow"><div class="flow-arrow-line"></div></div>
+    <div class="flow-stage">
+      <div class="stage-box">
+        <span class="stage-icon">&#127919;</span>
+        <span class="stage-name">Pass/Fail</span>
+        <span class="stage-desc">Clear error messages on failure</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S3: MATCH == & != -->
+<div class="section section-anchor" id="s3">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title">match == &amp; match != &mdash; Equality</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">The foundation of all Karate assertions. <span class="ic">match ==</span> performs intelligent equality that ignores key ordering and handles whitespace. <span class="ic">match !=</span> asserts inequality.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">match == &middot; Exact Equality</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># JSON object &mdash; key order doesn't matter</span>
+<span class="kw">*</span> <span class="fn">def</span> user = { id: <span class="num">1</span>, name: <span class="str">'John'</span> }
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">==</span> { id: <span class="num">1</span>, name: <span class="str">'John'</span> }
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">==</span> { name: <span class="str">'John'</span>, id: <span class="num">1</span> }
+
+<span class="cm"># Property-level match</span>
+<span class="kw">*</span> <span class="fn">match</span> user.id <span class="op">==</span> <span class="num">1</span>
+<span class="kw">*</span> <span class="fn">match</span> user.name <span class="op">==</span> <span class="str">'John'</span>
+
+<span class="cm"># Arrays &mdash; order DOES matter</span>
+<span class="kw">*</span> <span class="fn">def</span> nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+<span class="kw">*</span> <span class="fn">match</span> nums <span class="op">==</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+
+<span class="cm"># Match against variables</span>
+<span class="kw">*</span> <span class="fn">def</span> expected = { id: <span class="num">1</span>, name: <span class="str">'John'</span> }
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">==</span> expected
+
+<span class="cm"># Strings</span>
+<span class="kw">*</span> <span class="fn">def</span> msg = <span class="str">'Hello World'</span>
+<span class="kw">*</span> <span class="fn">match</span> msg <span class="op">==</span> <span class="str">'Hello World'</span>
+
+<span class="cm"># Numbers</span>
+<span class="kw">*</span> <span class="fn">match</span> response.total <span class="op">==</span> <span class="num">42.5</span>
+
+<span class="cm"># Booleans</span>
+<span class="kw">*</span> <span class="fn">match</span> response.active <span class="op">==</span> <span class="val">true</span>
+
+<span class="cm"># Null</span>
+<span class="kw">*</span> <span class="fn">match</span> response.deletedAt <span class="op">==</span> <span class="val">null</span></pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">match != &middot; Not Equals</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Simple negative assertions</span>
+<span class="kw">*</span> <span class="fn">def</span> user = { id: <span class="num">123</span>, status: <span class="str">'active'</span> }
+
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">!=</span> { id: <span class="num">456</span> }
+<span class="kw">*</span> <span class="fn">match</span> user.status <span class="op">!=</span> <span class="str">'inactive'</span>
+<span class="kw">*</span> <span class="fn">match</span> user.id <span class="op">!=</span> <span class="num">0</span>
+
+<span class="cm"># Text not equals</span>
+<span class="kw">*</span> <span class="fn">def</span> message = <span class="str">'Success'</span>
+<span class="kw">*</span> <span class="fn">match</span> message <span class="op">!=</span> <span class="str">'Error'</span>
+<span class="kw">*</span> <span class="fn">match</span> message <span class="op">!=</span> <span class="str">''</span></pre></div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-label">Best Practice</div>
+        Prefer <span class="ic">match ==</span> with fuzzy markers like <span class="ic">#notnull</span> or <span class="ic">#notpresent</span> over <span class="ic">match !=</span> for complex negative validations. Reserve <span class="ic">!=</span> for simple string/number comparisons.
+      </div>
+
+      <div class="code-block" style="margin-top:16px;">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">match within &middot; Range Check (v2)</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Assert value is within a range</span>
+<span class="kw">*</span> <span class="fn">def</span> temp = <span class="num">36.8</span>
+<span class="kw">*</span> <span class="fn">match</span> temp <span class="op">within</span> { low: <span class="num">36.0</span>, high: <span class="num">37.5</span> }
+
+<span class="cm"># Assert value is OUTSIDE a range</span>
+<span class="kw">*</span> <span class="fn">def</span> score = <span class="num">85</span>
+<span class="kw">*</span> <span class="fn">match</span> score <span class="op">!within</span> { low: <span class="num">0</span>, high: <span class="num">50</span> }</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: MATCH CONTAINS -->
+<div class="section section-anchor" id="s4">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2 class="section-title">match contains &amp; All Variants</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Contains operations let you assert subsets without requiring exact equality. Six powerful variants cover every partial matching scenario.</p>
+
+  <div class="assert-grid">
+    <div class="assert-card">
+      <div class="assert-card-header" style="color:var(--accent)">&#128230; match contains</div>
+      <div class="assert-card-body">
+        Subset matching &mdash; check specific fields exist without matching ALL fields.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="cm"># Object &mdash; only check specified keys</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">contains</span> { id: <span class="num">1</span>, name: <span class="str">'Bret'</span> }
+
+<span class="cm"># Array &mdash; check element exists</span>
+<span class="kw">*</span> <span class="fn">def</span> tags = [<span class="str">'admin'</span>, <span class="str">'verified'</span>, <span class="str">'premium'</span>]
+<span class="kw">*</span> <span class="fn">match</span> tags <span class="op">contains</span> <span class="str">'admin'</span>
+
+<span class="cm"># Multiple elements (order irrelevant)</span>
+<span class="kw">*</span> <span class="fn">match</span> tags <span class="op">contains</span> [<span class="str">'admin'</span>, <span class="str">'verified'</span>]</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="assert-card">
+      <div class="assert-card-header" style="color:var(--accent4)">&#128683; match !contains</div>
+      <div class="assert-card-body">
+        Verify elements are absent from objects or arrays.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="kw">*</span> <span class="fn">def</span> user = { id: <span class="num">1</span>, name: <span class="str">'John'</span> }
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">!contains</span> { deleted: <span class="val">true</span> }
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">!contains</span> { id: <span class="num">456</span> }
+
+<span class="kw">*</span> <span class="fn">def</span> tags = [<span class="str">'admin'</span>, <span class="str">'verified'</span>]
+<span class="kw">*</span> <span class="fn">match</span> tags <span class="op">!contains</span> <span class="str">'suspended'</span>
+<span class="kw">*</span> <span class="fn">match</span> tags <span class="op">!contains</span> [<span class="num">4</span>, <span class="num">5</span>]</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="assert-card">
+      <div class="assert-card-header" style="color:var(--accent2)">&#128257; match contains only</div>
+      <div class="assert-card-body">
+        All elements must be present in any order &mdash; no extras allowed.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="kw">*</span> <span class="fn">def</span> nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+<span class="kw">*</span> <span class="fn">match</span> nums <span class="op">contains only</span> [<span class="num">3</span>, <span class="num">2</span>, <span class="num">1</span>]
+<span class="kw">*</span> <span class="fn">match</span> nums <span class="op">contains only</span> [<span class="num">2</span>, <span class="num">3</span>, <span class="num">1</span>]
+
+<span class="cm"># This FAILS &mdash; missing element 3:</span>
+<span class="cm"># * match nums contains only [1, 2]</span></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="assert-card">
+      <div class="assert-card-header" style="color:var(--accent5)">&#127922; match contains any</div>
+      <div class="assert-card-body">
+        At least ONE element from the expected list must be present.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="kw">*</span> <span class="fn">def</span> tags = [<span class="str">'admin'</span>, <span class="str">'verified'</span>, <span class="str">'premium'</span>]
+<span class="kw">*</span> <span class="fn">match</span> tags <span class="op">contains any</span> [<span class="str">'admin'</span>, <span class="str">'superuser'</span>]
+
+<span class="cm"># Works for objects too</span>
+<span class="kw">*</span> <span class="fn">def</span> data = { a: <span class="num">1</span>, b: <span class="str">'x'</span> }
+<span class="kw">*</span> <span class="fn">match</span> data <span class="op">contains any</span> { b: <span class="str">'x'</span>, c: <span class="val">true</span> }</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="assert-card">
+      <div class="assert-card-header" style="color:var(--accent6)">&#128065; match contains deep</div>
+      <div class="assert-card-body">
+        Recursive subset matching for nested structures &mdash; checks at any depth.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="kw">*</span> <span class="fn">def</span> data = { a: <span class="num">1</span>, b: <span class="num">2</span>, d: { x: <span class="num">10</span>, y: <span class="num">20</span> } }
+<span class="kw">*</span> <span class="fn">def</span> expected = { a: <span class="num">1</span>, d: { y: <span class="num">20</span> } }
+<span class="kw">*</span> <span class="fn">match</span> data <span class="op">contains deep</span> expected
+
+<span class="cm"># With nested arrays</span>
+<span class="kw">*</span> <span class="fn">def</span> data2 = { arr: [{ b: <span class="num">2</span>, c: <span class="num">3</span> }, { b: <span class="num">4</span>}] }
+<span class="kw">*</span> <span class="fn">match</span> data2 <span class="op">contains deep</span> { arr: [{ b: <span class="num">2</span> }] }</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="assert-card">
+      <div class="assert-card-header" style="color:var(--accent3)">&#127793; match contains only deep</div>
+      <div class="assert-card-body">
+        Like <span class="ic">match ==</span> but array order doesn't matter at any depth.
+        <div class="code-block" style="margin-top:10px;">
+          <div class="code-body" style="padding:12px"><pre><span class="kw">*</span> <span class="fn">def</span> resp = { foo: [<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>] }
+
+<span class="cm"># Order doesn't matter at any depth</span>
+<span class="kw">*</span> <span class="fn">match</span> resp <span class="op">contains only deep</span> { foo: [<span class="str">'c'</span>, <span class="str">'a'</span>, <span class="str">'b'</span>] }</pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-info" style="margin-top:16px;">
+    <div class="callout-label">Quick Decision Guide</div>
+    <strong>contains</strong> = "has at least these" &middot; <strong>contains only</strong> = "has exactly these, any order" &middot; <strong>contains any</strong> = "has at least one of these" &middot; <strong>contains deep</strong> = "has at least these, at any nesting level"
+  </div>
+</div>
+
+<!-- S5: MATCH EACH -->
+<div class="section section-anchor" id="s5">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2 class="section-title">match each &mdash; Array Element Validation</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <p style="color:var(--text2);font-size:14px;margin-bottom:20px;"><span class="ic">match each</span> applies a validation pattern to every element in an array. Combine with fuzzy markers and contains for maximum power.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">match each &middot; All Patterns</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Type-check every element</span>
+<span class="kw">*</span> <span class="fn">match each</span> response <span class="op">==</span>
+  <span class="str">"""
+  {
+    id: '#number',
+    name: '#string',
+    email: '#string',
+    active: '#boolean'
+  }
+  """</span>
+
+<span class="cm"># Each element contains subset</span>
+<span class="kw">*</span> <span class="fn">match each</span> response <span class="op">contains</span> { id: <span class="marker">'#number'</span> }
+
+<span class="cm"># Each element with custom validation</span>
+<span class="kw">*</span> <span class="fn">match each</span> response <span class="op">==</span> { id: <span class="marker">'#number? _ &gt; 0'</span> }
+
+<span class="cm"># Simple array of primitives</span>
+<span class="kw">*</span> <span class="fn">def</span> tags = [<span class="str">'api'</span>, <span class="str">'test'</span>, <span class="str">'karate'</span>]
+<span class="kw">*</span> <span class="fn">match each</span> tags <span class="op">==</span> <span class="marker">'#string'</span>
+
+<span class="cm"># Each with custom JS expression</span>
+<span class="kw">*</span> <span class="fn">def</span> statusEnum = [<span class="str">'active'</span>, <span class="str">'pending'</span>]
+<span class="kw">*</span> <span class="fn">match each</span> response..status <span class="op">==</span> <span class="marker">'#? statusEnum.includes(_)'</span></pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Cross-Field &amp; Deep Variants</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># _$ references the parent object</span>
+<span class="kw">*</span> <span class="fn">def</span> orders =
+  <span class="str">"""
+  [
+    { items: 3, total: 30, pricePerItem: 10 },
+    { items: 5, total: 25, pricePerItem: 5 }
+  ]
+  """</span>
+
+<span class="cm"># Validate total == items * pricePerItem</span>
+<span class="kw">*</span> <span class="fn">match each</span> orders <span class="op">contains</span>
+  { total: <span class="marker">'#? _ == _$.items * _$.pricePerItem'</span> }
+
+<span class="cm"># match each contains deep</span>
+<span class="kw">*</span> <span class="fn">def</span> items =
+  <span class="str">"""
+  [
+    { a: 1, arr: [{ b: 2, c: 3 }] },
+    { a: 1, arr: [{ b: 2, c: 3 }, { b: 4 }] }
+  ]
+  """</span>
+<span class="kw">*</span> <span class="fn">match each</span> items <span class="op">contains deep</span>
+  { a: <span class="num">1</span>, arr: [{ b: <span class="num">2</span> }] }</pre></div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:16px;">
+        <table>
+          <tr><th>Symbol</th><th>Meaning</th><th>Context</th></tr>
+          <tr><td><code>_</code></td><td>Current value being validated ("self")</td><td>Any #? expression</td></tr>
+          <tr><td><code>$</code></td><td>JSON root document</td><td>Cross-field validation</td></tr>
+          <tr><td><code>_$</code></td><td>Parent object in iteration</td><td>match each only</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S6: FUZZY MARKERS -->
+<div class="section section-anchor" id="s6">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2 class="section-title">Fuzzy Matching Markers &mdash; Complete Reference</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Validate data types and patterns without hardcoding exact values. These markers are what make Karate uniquely powerful &mdash; no other framework has this built in.</p>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Marker</th><th>Description</th><th>Example</th><th>Matches</th></tr>
+      <tr><td><code>#ignore</code></td><td>Skip validation entirely for this field</td><td><code>match resp == { id: '#ignore' }</code></td><td>Any value</td></tr>
+      <tr><td><code>#null</code></td><td>Value must be null (key MUST exist)</td><td><code>match resp == { v: '#null' }</code></td><td><code>{ v: null }</code></td></tr>
+      <tr><td><code>#notnull</code></td><td>Value must not be null</td><td><code>match resp == { v: '#notnull' }</code></td><td><code>{ v: 'anything' }</code></td></tr>
+      <tr><td><code>#present</code></td><td>Key must exist (any value, even null)</td><td><code>match resp == { v: '#present' }</code></td><td><code>{ v: null }</code> or <code>{ v: 1 }</code></td></tr>
+      <tr><td><code>#notpresent</code></td><td>Key must NOT exist</td><td><code>match resp == { v: '#notpresent' }</code></td><td><code>{ }</code> (no key v)</td></tr>
+      <tr><td><code>#string</code></td><td>Must be a string</td><td><code>match resp == { name: '#string' }</code></td><td><code>"John"</code></td></tr>
+      <tr><td><code>#number</code></td><td>Must be a number</td><td><code>match resp == { age: '#number' }</code></td><td><code>25</code>, <code>3.14</code></td></tr>
+      <tr><td><code>#boolean</code></td><td>Must be true or false</td><td><code>match resp == { ok: '#boolean' }</code></td><td><code>true</code>, <code>false</code></td></tr>
+      <tr><td><code>#array</code></td><td>Must be a JSON array</td><td><code>match resp == { items: '#array' }</code></td><td><code>[1,2,3]</code></td></tr>
+      <tr><td><code>#object</code></td><td>Must be a JSON object</td><td><code>match resp == { addr: '#object' }</code></td><td><code>{ street: '...' }</code></td></tr>
+      <tr><td><code>#uuid</code></td><td>Must match UUID format</td><td><code>match resp == { id: '#uuid' }</code></td><td><code>"550e8400-e29b..."</code></td></tr>
+      <tr><td><code>#regex STR</code></td><td>Must match regular expression</td><td><code>match resp == { email: '#regex .+@.+' }</code></td><td><code>"a@b.com"</code></td></tr>
+      <tr><td><code>#? EXPR</code></td><td>Custom JS expression must return true</td><td><code>match resp == { age: '#? _ > 18' }</code></td><td>Any number &gt; 18</td></tr>
+      <tr><td><code>#[N]</code></td><td>Array must have N elements</td><td><code>match resp == '#[10]'</code></td><td>Array of length 10</td></tr>
+      <tr><td><code>#[] SCHEMA</code></td><td>Array with optional element schema</td><td><code>match resp == '#[] #string'</code></td><td>Array of strings</td></tr>
+      <tr><td><code>#(EXPR)</code></td><td>Embedded expression (substituted before match)</td><td><code>match resp == { v: '#(expected)' }</code></td><td>Value of <code>expected</code> variable</td></tr>
+    </table>
+  </div>
+
+  <div class="two-col" style="margin-top:24px;">
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Optional Fields with ## Prefix</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">## &middot; Optional / Nullable Fields</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Field can be missing OR match the type</span>
+<span class="kw">*</span> <span class="fn">def</span> user = { name: <span class="str">'John'</span>, age: <span class="num">30</span> }
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">==</span>
+  {
+    name: <span class="marker">'#string'</span>,
+    age: <span class="marker">'#number'</span>,
+    bio: <span class="marker">'##string'</span>,     <span class="cm"># missing = OK</span>
+    phone: <span class="marker">'##string'</span>    <span class="cm"># missing = OK</span>
+  }
+
+<span class="cm"># ##null matches both missing AND null</span>
+<span class="kw">*</span> <span class="fn">def</span> foo = { a: <span class="num">1</span> }
+<span class="kw">*</span> <span class="fn">match</span> foo <span class="op">==</span> { a: <span class="num">1</span>, b: <span class="marker">'##null'</span> }
+
+<span class="kw">*</span> <span class="fn">def</span> bar = { a: <span class="num">1</span>, b: <span class="val">null</span> }
+<span class="kw">*</span> <span class="fn">match</span> bar <span class="op">==</span> { a: <span class="num">1</span>, b: <span class="marker">'##null'</span> }
+
+<span class="cm"># Works with any marker</span>
+<span class="cm"># ##string, ##number, ##object, ##array, etc.</span></pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">#null vs #notpresent &mdash; Know the Difference</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Null vs Missing Key</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Key is MISSING entirely</span>
+<span class="kw">*</span> <span class="fn">def</span> foo = { }
+<span class="kw">*</span> <span class="fn">match</span> foo <span class="op">==</span> { a: <span class="marker">'##null'</span> }       <span class="cm"># PASS</span>
+<span class="kw">*</span> <span class="fn">match</span> foo <span class="op">==</span> { a: <span class="marker">'#notpresent'</span> }  <span class="cm"># PASS</span>
+
+<span class="cm"># Key EXISTS with null value</span>
+<span class="kw">*</span> <span class="fn">def</span> bar = { a: <span class="val">null</span> }
+<span class="kw">*</span> <span class="fn">match</span> bar <span class="op">==</span> { a: <span class="marker">'#null'</span> }        <span class="cm"># PASS</span>
+<span class="kw">*</span> <span class="fn">match</span> bar <span class="op">==</span> { a: <span class="marker">'#present'</span> }     <span class="cm"># PASS</span>
+
+<span class="cm"># Key EXISTS with a value</span>
+<span class="kw">*</span> <span class="fn">def</span> baz = { a: <span class="num">1</span> }
+<span class="kw">*</span> <span class="fn">match</span> baz <span class="op">==</span> { a: <span class="marker">'#notnull'</span> }     <span class="cm"># PASS</span>
+<span class="kw">*</span> <span class="fn">match</span> baz <span class="op">==</span> { a: <span class="marker">'#present'</span> }     <span class="cm"># PASS</span></pre></div>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-label">Regex Escaping</div>
+        Use double backslashes in regex patterns: <span class="ic">#regex a\\.dot</span> matches the literal string <span class="ic">a.dot</span>. The first backslash escapes the second in Karate's string processing.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S7: SCHEMA VALIDATION -->
+<div class="section section-anchor" id="s7">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2 class="section-title">Schema Validation &mdash; Reusable Patterns</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Define schemas once, reuse them everywhere. Simpler and more powerful than JSON Schema, with zero dependencies.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Reusable Schema &middot; Define Once, Use Everywhere</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">Background:</span>
+  <span class="kw">*</span> <span class="fn">def</span> geoSchema =
+    { lat: <span class="marker">'#string'</span>, lng: <span class="marker">'#string'</span> }
+
+  <span class="kw">*</span> <span class="fn">def</span> addressSchema =
+    {
+      street: <span class="marker">'#string'</span>,
+      suite: <span class="marker">'#string'</span>,
+      city: <span class="marker">'#string'</span>,
+      zipcode: <span class="marker">'#regex \\d{5}-\\d{4}'</span>,
+      geo: <span class="marker">'#(geoSchema)'</span>
+    }
+
+  <span class="kw">*</span> <span class="fn">def</span> companySchema =
+    {
+      name: <span class="marker">'#string'</span>,
+      catchPhrase: <span class="marker">'#string'</span>,
+      bs: <span class="marker">'#string'</span>
+    }
+
+  <span class="kw">*</span> <span class="fn">def</span> userSchema =
+    <span class="str">"""
+    {
+      id: '#number',
+      name: '#string',
+      username: '#string? _.length >= 3',
+      email: '#regex .+@.+\\..+',
+      address: '#(addressSchema)',
+      phone: '#string',
+      website: '#string',
+      company: '#(companySchema)'
+    }
+    """</span>
+
+<span class="fn">Scenario:</span> Validate single user
+  <span class="kw">Given</span> url <span class="str">'https://jsonplaceholder.typicode.com'</span>
+  <span class="kw">And</span> path <span class="str">'users'</span>, <span class="num">1</span>
+  <span class="kw">When</span> method get
+  <span class="kw">Then</span> status <span class="num">200</span>
+  <span class="kw">And</span> <span class="fn">match</span> response <span class="op">==</span> userSchema
+
+<span class="fn">Scenario:</span> Validate all users
+  <span class="kw">Given</span> url <span class="str">'https://jsonplaceholder.typicode.com'</span>
+  <span class="kw">And</span> path <span class="str">'users'</span>
+  <span class="kw">When</span> method get
+  <span class="kw">Then</span> status <span class="num">200</span>
+  <span class="kw">And</span> <span class="fn">match each</span> response <span class="op">==</span> userSchema</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Array Schema &middot; #[] with Element Type</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Must be an array (any size)</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span> <span class="marker">'#[]'</span>
+
+<span class="cm"># Exact array length</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span> <span class="marker">'#[10]'</span>
+
+<span class="cm"># Array of strings</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span> <span class="marker">'#[] #string'</span>
+
+<span class="cm"># Array of exactly 3 strings</span>
+<span class="kw">*</span> <span class="fn">match</span> items <span class="op">==</span> <span class="marker">'#[3] #string'</span>
+
+<span class="cm"># Each element satisfies a predicate</span>
+<span class="kw">*</span> <span class="fn">match</span> items <span class="op">==</span> <span class="marker">'#[]? _.length == 1'</span>
+
+<span class="cm"># Combine type + length + predicate</span>
+<span class="kw">*</span> <span class="fn">match</span> items <span class="op">==</span> <span class="marker">'#[] #string? _.length &gt; 0'</span></pre></div>
+      </div>
+
+      <div class="code-block" style="margin-top:16px;">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">External Schema Files</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Load schema from JSON file</span>
+<span class="kw">*</span> <span class="fn">def</span> userSchema = read(<span class="str">'classpath:schemas/user.json'</span>)
+
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span> userSchema
+
+<span class="cm"># Or from a .feature file</span>
+<span class="kw">*</span> <span class="fn">def</span> result = call read(<span class="str">'classpath:common/schemas.feature'</span>)
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span> result.userSchema</pre></div>
+      </div>
+
+      <div class="callout callout-tip" style="margin-top:16px;">
+        <div class="callout-label">Pro Tip</div>
+        Use <span class="ic">#(schemaName)</span> embedded expressions to nest schemas within schemas. This keeps your validation DRY and composable across your entire test suite.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S8: SELF VALIDATION & CUSTOM LOGIC -->
+<div class="section section-anchor" id="s8">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2 class="section-title">Self-Validation #? &amp; Custom Logic</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">#? &middot; Custom Validation Expressions</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Range validation</span>
+<span class="kw">*</span> <span class="fn">match</span> product <span class="op">==</span>
+  {
+    price: <span class="marker">'#number? _ &gt; 0 &amp;&amp; _ &lt; 10000'</span>,
+    discount: <span class="marker">'#number? _ &gt;= 0 &amp;&amp; _ &lt;= 100'</span>,
+    quantity: <span class="marker">'#number? _ &gt; 0'</span>
+  }
+
+<span class="cm"># String length validation</span>
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">==</span>
+  {
+    username: <span class="marker">'#string? _.length &gt;= 3'</span>,
+    bio: <span class="marker">'##string? _.length &lt;= 500'</span>
+  }
+
+<span class="cm"># External variable reference</span>
+<span class="kw">*</span> <span class="fn">def</span> min = <span class="num">1</span>
+<span class="kw">*</span> <span class="fn">def</span> max = <span class="num">100</span>
+<span class="kw">*</span> <span class="fn">match</span> value <span class="op">==</span> { count: <span class="marker">'#? _ &gt;= min &amp;&amp; _ &lt;= max'</span> }
+
+<span class="cm"># Enum validation</span>
+<span class="kw">*</span> <span class="fn">def</span> validStatuses = [<span class="str">'active'</span>, <span class="str">'pending'</span>, <span class="str">'disabled'</span>]
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">==</span>
+  { status: <span class="marker">'#? validStatuses.includes(_)'</span> }
+
+<span class="cm"># Date format check</span>
+<span class="kw">*</span> <span class="fn">match</span> resp <span class="op">==</span>
+  { created: <span class="marker">'#regex \\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}'</span> }</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Cross-Field Validation with $</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># $ references JSON root</span>
+<span class="kw">*</span> <span class="fn">def</span> temperature =
+  { celsius: <span class="num">100</span>, fahrenheit: <span class="num">212</span> }
+
+<span class="kw">*</span> <span class="fn">match</span> temperature <span class="op">==</span>
+  {
+    celsius: <span class="marker">'#number'</span>,
+    fahrenheit: <span class="marker">'#? _ == $.celsius * 1.8 + 32'</span>
+  }
+
+<span class="cm"># Embedded expression (cleaner syntax)</span>
+<span class="kw">*</span> <span class="fn">match</span> temperature <span class="op">contains</span>
+  { fahrenheit: <span class="marker">'#($.celsius * 1.8 + 32)'</span> }
+
+<span class="cm"># Validation functions</span>
+<span class="kw">*</span> <span class="fn">def</span> isValidEmail =
+  <span class="kw">function</span>(e) { <span class="kw">return</span> e.indexOf(<span class="str">'@'</span>) &gt; <span class="num">0</span> }
+
+<span class="kw">*</span> <span class="fn">match</span> user.email <span class="op">==</span> <span class="marker">'#? isValidEmail(_)'</span>
+
+<span class="cm"># Complex function validation</span>
+<span class="kw">*</span> <span class="fn">def</span> isISO8601 = <span class="kw">function</span>(d) {
+    <span class="kw">var</span> parsed = <span class="kw">new</span> Date(d);
+    <span class="kw">return</span> !isNaN(parsed.getTime());
+  }
+
+<span class="kw">*</span> <span class="fn">match</span> resp.createdAt <span class="op">==</span> <span class="marker">'#? isISO8601(_)'</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S9: RESPONSE VARIABLES -->
+<div class="section section-anchor" id="s9">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2 class="section-title">Response Variables &amp; Status Assertions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Built-in Response Variables</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Variable</th><th>Type</th><th>Description</th></tr>
+          <tr><td><code>response</code></td><td>JSON / XML / String</td><td>Auto-parsed response body</td></tr>
+          <tr><td><code>responseStatus</code></td><td>int</td><td>HTTP status code (200, 404, etc.)</td></tr>
+          <tr><td><code>responseTime</code></td><td>long</td><td>Response time in milliseconds</td></tr>
+          <tr><td><code>responseHeaders</code></td><td>Map&lt;List&gt;</td><td>All response headers</td></tr>
+          <tr><td><code>responseCookies</code></td><td>Map</td><td>Response cookies with metadata</td></tr>
+          <tr><td><code>responseBytes</code></td><td>byte[]</td><td>Raw binary response body</td></tr>
+          <tr><td><code>responseType</code></td><td>String</td><td><code>json</code>, <code>xml</code>, or <code>string</code></td></tr>
+          <tr><td><code>requestTimeStamp</code></td><td>long</td><td>Java system time when request sent</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Status &amp; Response Assertions</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Simple status assertion</span>
+<span class="kw">Then</span> status <span class="num">200</span>
+
+<span class="cm"># Status with assert (for ranges)</span>
+<span class="kw">*</span> <span class="fn">assert</span> responseStatus <span class="op">&gt;=</span> <span class="num">200</span> <span class="op">&amp;&amp;</span> responseStatus <span class="op">&lt;</span> <span class="num">300</span>
+
+<span class="cm"># Status from a list</span>
+<span class="kw">*</span> <span class="fn">match</span> [<span class="num">200</span>, <span class="num">201</span>, <span class="num">204</span>] <span class="op">contains</span> responseStatus
+
+<span class="cm"># Response type check</span>
+<span class="kw">*</span> <span class="fn">match</span> responseType <span class="op">==</span> <span class="str">'json'</span>
+
+<span class="cm"># Response body as string</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span> <span class="str">'Health Check OK'</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">contains</span> <span class="str">'OK'</span>
+
+<span class="cm"># Response body size</span>
+<span class="kw">*</span> <span class="fn">assert</span> responseBytes.length <span class="op">&gt;</span> <span class="num">0</span>
+
+<span class="cm"># Configure expected status (for negative tests)</span>
+<span class="kw">*</span> configure responseStatusCheck = <span class="val">false</span>
+<span class="kw">When</span> method get
+<span class="kw">*</span> <span class="fn">match</span> responseStatus <span class="op">==</span> <span class="num">404</span>
+<span class="kw">*</span> <span class="fn">match</span> response.error <span class="op">==</span> <span class="str">'Not Found'</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S10: HEADERS, COOKIES, TIME -->
+<div class="section section-anchor" id="s10">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2 class="section-title">Header, Cookie &amp; Response Time Assertions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Header Assertions</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># match header (case-insensitive shortcut)</span>
+<span class="kw">*</span> <span class="fn">match header</span> Content-Type <span class="op">contains</span> <span class="str">'application/json'</span>
+<span class="kw">*</span> <span class="fn">match header</span> Cache-Control <span class="op">==</span> <span class="str">'no-cache'</span>
+<span class="kw">*</span> <span class="fn">match header</span> X-Request-Id <span class="op">==</span> <span class="marker">'#notnull'</span>
+
+<span class="cm"># Direct responseHeaders access</span>
+<span class="cm"># (headers are Map of Lists, use [0])</span>
+<span class="kw">*</span> <span class="fn">match</span> responseHeaders[<span class="str">'Content-Type'</span>][<span class="num">0</span>]
+    <span class="op">contains</span> <span class="str">'json'</span>
+
+<span class="cm"># Case-insensitive header lookup (recommended)</span>
+<span class="kw">*</span> <span class="fn">def</span> ct = karate.response.header(<span class="str">'content-type'</span>)
+<span class="kw">*</span> <span class="fn">match</span> ct <span class="op">contains</span> <span class="str">'json'</span>
+
+<span class="cm"># Assert header exists</span>
+<span class="kw">*</span> <span class="fn">match</span> responseHeaders[<span class="str">'X-Correlation-Id'</span>]
+    <span class="op">==</span> <span class="marker">'#notnull'</span></pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Cookie &amp; Response Time</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Cookie assertions</span>
+<span class="kw">*</span> <span class="fn">match</span> responseCookies.sessionId <span class="op">==</span> <span class="marker">'#notnull'</span>
+<span class="kw">*</span> <span class="fn">match</span> responseCookies.sessionId.value
+    <span class="op">==</span> <span class="marker">'#string'</span>
+<span class="kw">*</span> <span class="fn">match</span> responseCookies.sessionId.path <span class="op">==</span> <span class="str">'/'</span>
+
+<span class="cm"># Response time (SLA compliance)</span>
+<span class="kw">*</span> <span class="fn">assert</span> responseTime <span class="op">&lt;</span> <span class="num">2000</span>
+
+<span class="cm"># Store time before next request resets it</span>
+<span class="kw">*</span> <span class="fn">def</span> firstCallTime = responseTime
+<span class="kw">When</span> method get
+<span class="kw">*</span> <span class="fn">assert</span> responseTime <span class="op">&lt;</span> firstCallTime * <span class="num">2</span>
+
+<span class="cm"># Performance budget</span>
+<span class="kw">*</span> <span class="fn">match</span> responseTime <span class="op">within</span>
+    { low: <span class="num">0</span>, high: <span class="num">1500</span> }</pre></div>
+      </div>
+
+      <div class="callout callout-warn" style="margin-top:16px;">
+        <div class="callout-label">Important</div>
+        Response variables (<code>response</code>, <code>responseTime</code>, etc.) are reset after every HTTP call. Store values in <code>def</code> variables before making new requests.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S11: XML ASSERTIONS -->
+<div class="section section-anchor" id="s11">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <h2 class="section-title">XML Assertions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">All fuzzy markers and match variants work with XML responses. Karate handles XPath natively.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">XML &middot; Fuzzy Matching</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># XML with fuzzy markers</span>
+<span class="kw">*</span> <span class="fn">def</span> xml =
+  <span class="str">"""
+  &lt;root&gt;
+    &lt;hello&gt;world&lt;/hello&gt;
+    &lt;id&gt;123&lt;/id&gt;
+  &lt;/root&gt;
+  """</span>
+
+<span class="kw">*</span> <span class="fn">match</span> xml <span class="op">==</span>
+  <span class="str">"""
+  &lt;root&gt;
+    &lt;hello&gt;#string&lt;/hello&gt;
+    &lt;id&gt;#ignore&lt;/id&gt;
+  &lt;/root&gt;
+  """</span>
+
+<span class="cm"># XML attribute matching</span>
+<span class="kw">*</span> <span class="fn">def</span> xml2 =
+  <span class="str">&lt;item id="123" status="active"&gt;content&lt;/item&gt;</span>
+
+<span class="kw">*</span> <span class="fn">match</span> xml2 <span class="op">==</span>
+  <span class="str">&lt;item id="#string" status="#ignore"&gt;content&lt;/item&gt;</span></pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">XML &middot; XPath &amp; SOAP</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># XPath extraction and match</span>
+<span class="kw">*</span> <span class="fn">def</span> name = karate.xmlPath(xml, <span class="str">'/root/hello'</span>)
+<span class="kw">*</span> <span class="fn">match</span> name <span class="op">==</span> <span class="str">'world'</span>
+
+<span class="cm"># SOAP response validation</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span>
+  <span class="str">"""
+  &lt;soap:Envelope xmlns:soap="..."&gt;
+    &lt;soap:Body&gt;
+      &lt;GetUserResponse&gt;
+        &lt;Name&gt;#string&lt;/Name&gt;
+        &lt;Email&gt;#regex .+@.+&lt;/Email&gt;
+        &lt;Id&gt;#number&lt;/Id&gt;
+      &lt;/GetUserResponse&gt;
+    &lt;/soap:Body&gt;
+  &lt;/soap:Envelope&gt;
+  """</span>
+
+<span class="cm"># Text matching (non-JSON, non-XML)</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span> <span class="str">'Health Check OK'</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">contains</span> <span class="str">'OK'</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">!contains</span> <span class="str">'Error'</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S12: JSONPATH -->
+<div class="section section-anchor" id="s12">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <h2 class="section-title">JsonPath &amp; Data Extraction</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">JsonPath &middot; Wildcards &amp; Filters</span>
+        </div>
+        <div class="code-body"><pre><span class="kw">*</span> <span class="fn">def</span> cat =
+  <span class="str">"""
+  {
+    "name": "Billie",
+    "kittens": [
+      { "id": 23, "name": "Bob" },
+      { "id": 42, "name": "Wild" }
+    ]
+  }
+  """</span>
+
+<span class="cm"># Wildcard [*] returns arrays</span>
+<span class="kw">*</span> <span class="fn">match</span> cat.kittens[*].id <span class="op">==</span> [<span class="num">23</span>, <span class="num">42</span>]
+<span class="kw">*</span> <span class="fn">match</span> cat.kittens[*].name <span class="op">==</span> [<span class="str">'Bob'</span>, <span class="str">'Wild'</span>]
+
+<span class="cm"># Deep scan .. (matches at any depth)</span>
+<span class="kw">*</span> <span class="fn">match</span> cat..name <span class="op">==</span> [<span class="str">'Billie'</span>, <span class="str">'Bob'</span>, <span class="str">'Wild'</span>]
+
+<span class="cm"># JsonPath filter</span>
+<span class="kw">*</span> <span class="fn">def</span> bob = get[<span class="num">0</span>] cat.kittens[?(@.id==<span class="num">23</span>)]
+<span class="kw">*</span> <span class="fn">match</span> bob.name <span class="op">==</span> <span class="str">'Bob'</span>
+
+<span class="cm"># Array index</span>
+<span class="kw">*</span> <span class="fn">match</span> cat.kittens[<span class="num">0</span>].id <span class="op">==</span> <span class="num">23</span>
+<span class="kw">*</span> <span class="fn">match</span> cat.kittens[<span class="num">1</span>].name <span class="op">==</span> <span class="str">'Wild'</span></pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">get Keyword &amp; $ Shortcuts</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># get keyword for extraction</span>
+<span class="kw">*</span> <span class="fn">def</span> names = <span class="fn">get</span> cat.kittens[*].name
+<span class="kw">*</span> <span class="fn">match</span> names <span class="op">==</span> [<span class="str">'Bob'</span>, <span class="str">'Wild'</span>]
+
+<span class="cm"># get[0] for first match</span>
+<span class="kw">*</span> <span class="fn">def</span> first = <span class="fn">get</span>[<span class="num">0</span>] cat.kittens
+<span class="kw">*</span> <span class="fn">match</span> first.id <span class="op">==</span> <span class="num">23</span>
+
+<span class="cm"># $ shortcut for response</span>
+<span class="kw">*</span> <span class="fn">def</span> ids = $response.users[*].id
+<span class="kw">*</span> <span class="fn">match</span> ids <span class="op">==</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+
+<span class="cm"># $varName shortcut for other variables</span>
+<span class="kw">*</span> <span class="fn">def</span> data = { users: [{ n: <span class="str">'A'</span> }, { n: <span class="str">'B'</span> }] }
+<span class="kw">*</span> <span class="fn">def</span> names = $data.users[*].n
+<span class="kw">*</span> <span class="fn">match</span> names <span class="op">==</span> [<span class="str">'A'</span>, <span class="str">'B'</span>]
+
+<span class="cm"># karate.jsonPath for dynamic paths</span>
+<span class="kw">*</span> <span class="fn">def</span> path = <span class="str">'$.kittens[0].name'</span>
+<span class="kw">*</span> <span class="fn">def</span> val = karate.jsonPath(cat, path)
+<span class="kw">*</span> <span class="fn">match</span> val <span class="op">==</span> <span class="str">'Bob'</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S13: JAVASCRIPT FUNCTION ASSERTIONS -->
+<div class="section section-anchor" id="s13">
+  <div class="section-header">
+    <span class="section-num">13</span>
+    <h2 class="section-title">JavaScript Function Assertions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Write complex assertion logic using inline JavaScript functions, karate object helpers, and functional transforms.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Custom JS Validator Functions</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Inline JS validation functions</span>
+<span class="kw">*</span> <span class="fn">def</span> isValidEmail = <span class="kw">function</span>(e) {
+    <span class="kw">return</span> e.indexOf(<span class="str">'@'</span>) &gt; <span class="num">0</span>
+        &amp;&amp; e.indexOf(<span class="str">'.'</span>) &gt; e.indexOf(<span class="str">'@'</span>)
+  }
+
+<span class="kw">*</span> <span class="fn">def</span> isValidUUID = <span class="kw">function</span>(s) {
+    <span class="kw">var</span> regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    <span class="kw">return</span> regex.test(s)
+  }
+
+<span class="kw">*</span> <span class="fn">def</span> isISO8601 = <span class="kw">function</span>(d) {
+    <span class="kw">return</span> !isNaN(<span class="kw">new</span> Date(d).getTime())
+  }
+
+<span class="cm"># Use in #? expressions</span>
+<span class="kw">*</span> <span class="fn">match</span> user <span class="op">==</span>
+  {
+    id: <span class="marker">'#? isValidUUID(_)'</span>,
+    email: <span class="marker">'#? isValidEmail(_)'</span>,
+    created: <span class="marker">'#? isISO8601(_)'</span>
+  }
+
+<span class="cm"># Multi-field validator</span>
+<span class="kw">*</span> <span class="fn">def</span> isPositiveInt = <span class="kw">function</span>(n) {
+    <span class="kw">return</span> typeof n === <span class="str">'number'</span>
+        &amp;&amp; n &gt; <span class="num">0</span>
+        &amp;&amp; n % <span class="num">1</span> === <span class="num">0</span>
+  }
+
+<span class="kw">*</span> <span class="fn">match each</span> response <span class="op">==</span>
+  { id: <span class="marker">'#? isPositiveInt(_)'</span> }</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">karate Object &middot; Functional Helpers</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># karate.filter &mdash; filter array then assert</span>
+<span class="kw">*</span> <span class="fn">def</span> admins = karate.filter(response,
+    <span class="kw">function</span>(x){ <span class="kw">return</span> x.role == <span class="str">'admin'</span> })
+<span class="kw">*</span> <span class="fn">assert</span> admins.length <span class="op">&gt;</span> <span class="num">0</span>
+
+<span class="cm"># karate.map &mdash; transform then assert</span>
+<span class="kw">*</span> <span class="fn">def</span> names = karate.map(response,
+    <span class="kw">function</span>(x){ <span class="kw">return</span> x.name })
+<span class="kw">*</span> <span class="fn">match</span> names <span class="op">contains</span> <span class="str">'John'</span>
+
+<span class="cm"># karate.distinct &mdash; unique values</span>
+<span class="kw">*</span> <span class="fn">def</span> roles = karate.map(response,
+    <span class="kw">function</span>(x){ <span class="kw">return</span> x.role })
+<span class="kw">*</span> <span class="fn">def</span> unique = karate.distinct(roles)
+<span class="kw">*</span> <span class="fn">match</span> unique <span class="op">==</span> [<span class="str">'admin'</span>, <span class="str">'user'</span>, <span class="str">'guest'</span>]
+
+<span class="cm"># karate.sort then assert order</span>
+<span class="kw">*</span> <span class="fn">def</span> sorted = karate.sort(response,
+    <span class="kw">function</span>(a, b){ <span class="kw">return</span> a.id - b.id })
+<span class="kw">*</span> <span class="fn">match</span> sorted[<span class="num">0</span>].id <span class="op">==</span> <span class="num">1</span>
+
+<span class="cm"># karate.sizeOf</span>
+<span class="kw">*</span> <span class="fn">assert</span> karate.sizeOf(response) <span class="op">==</span> <span class="num">10</span>
+
+<span class="cm"># karate.keysOf / karate.valuesOf</span>
+<span class="kw">*</span> <span class="fn">def</span> keys = karate.keysOf(response[<span class="num">0</span>])
+<span class="kw">*</span> <span class="fn">match</span> keys <span class="op">contains</span> <span class="str">'id'</span>
+
+<span class="cm"># karate.lowerCase (case-insensitive compare)</span>
+<span class="kw">*</span> <span class="fn">def</span> lower = karate.lowerCase(response)
+<span class="kw">*</span> <span class="fn">match</span> lower.name <span class="op">==</span> <span class="str">'john doe'</span>
+
+<span class="cm"># karate.forEach with assertion side-effects</span>
+<span class="kw">*</span> karate.forEach(response, <span class="kw">function</span>(item, i){
+    <span class="kw">if</span> (item.role == <span class="str">'admin'</span>)
+      karate.log(<span class="str">'Admin:'</span>, item.name)
+  })</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S14: JAVA INTEROP ASSERTIONS -->
+<div class="section section-anchor" id="s14">
+  <div class="section-header">
+    <span class="section-num">14</span>
+    <h2 class="section-title">Java Interop Assertions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Call Java classes directly from Karate for enterprise-grade custom validation, complex date parsing, crypto checks, and more.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Java.type() &middot; Custom Validation Utils</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Call static Java methods</span>
+<span class="kw">*</span> <span class="fn">def</span> UUID = Java.type(<span class="str">'java.util.UUID'</span>)
+<span class="kw">*</span> <span class="fn">def</span> generated = UUID.randomUUID().toString()
+<span class="kw">*</span> <span class="fn">match</span> generated <span class="op">==</span> <span class="marker">'#uuid'</span>
+
+<span class="cm"># Timestamp validation with Java</span>
+<span class="kw">*</span> <span class="fn">def</span> System = Java.type(<span class="str">'java.lang.System'</span>)
+<span class="kw">*</span> <span class="fn">def</span> now = System.currentTimeMillis()
+<span class="kw">*</span> <span class="fn">assert</span> response.timestamp <span class="op">&lt;=</span> now
+
+<span class="cm"># Date parsing and comparison</span>
+<span class="kw">*</span> <span class="fn">def</span> sdf = Java.type(<span class="str">'java.text.SimpleDateFormat'</span>)
+<span class="kw">*</span> <span class="fn">def</span> fmt = <span class="kw">new</span> sdf(<span class="str">'yyyy-MM-dd'</span>)
+<span class="kw">*</span> <span class="fn">def</span> parsed = fmt.parse(response.date)
+<span class="kw">*</span> <span class="fn">assert</span> parsed != <span class="val">null</span>
+
+<span class="cm"># Case-insensitive string comparison</span>
+<span class="kw">*</span> <span class="fn">assert</span> response.name.equalsIgnoreCase(<span class="str">'JOHN DOE'</span>)
+
+<span class="cm"># Regex via Java Pattern</span>
+<span class="kw">*</span> <span class="fn">def</span> Pattern = Java.type(<span class="str">'java.util.regex.Pattern'</span>)
+<span class="kw">*</span> <span class="fn">def</span> p = Pattern.compile(<span class="str">'^[A-Z]{2}\\d{4}$'</span>)
+<span class="kw">*</span> <span class="fn">assert</span> p.matcher(response.code).matches()</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Custom Java Utility Class</span>
+        </div>
+        <div class="code-body"><pre><span class="cm">// src/test/java/utils/AssertionUtils.java</span>
+<span class="kw">package</span> utils;
+
+<span class="kw">import</span> java.util.*;
+
+<span class="kw">public class</span> <span class="fn">AssertionUtils</span> {
+
+  <span class="kw">public static boolean</span> isValidPhone(String p) {
+    <span class="kw">return</span> p.matches(<span class="str">"^\\+?\\d{10,15}$"</span>);
+  }
+
+  <span class="kw">public static boolean</span> isSorted(List&lt;Integer&gt; list) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt; list.size(); i++) {
+      <span class="kw">if</span> (list.get(i) &lt; list.get(i-<span class="num">1</span>)) <span class="kw">return false</span>;
+    }
+    <span class="kw">return true</span>;
+  }
+
+  <span class="kw">public static boolean</span> containsKey(
+      Map&lt;String,Object&gt; map, String key) {
+    <span class="kw">return</span> map.containsKey(key);
+  }
+}</pre></div>
+      </div>
+
+      <div class="code-block" style="margin-top:12px;">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Using Custom Java Utils in .feature</span>
+        </div>
+        <div class="code-body"><pre><span class="kw">*</span> <span class="fn">def</span> Utils = Java.type(<span class="str">'utils.AssertionUtils'</span>)
+
+<span class="kw">*</span> <span class="fn">assert</span> Utils.isValidPhone(response.phone)
+<span class="kw">*</span> <span class="fn">assert</span> Utils.isSorted(response.ids)
+
+<span class="cm"># In #? expression</span>
+<span class="kw">*</span> <span class="fn">match each</span> response <span class="op">==</span>
+  { phone: <span class="marker">'#? Utils.isValidPhone(_)'</span> }
+
+<span class="cm"># Match class (programmatic Java assertions)</span>
+<span class="cm">// In Java code:</span>
+<span class="cm">// Match.that(response).contains("{ id: 1 }");</span>
+<span class="cm">// Match.that(city).isEqualTo("London");</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S15: KARATE.EXPECT() -->
+<div class="section section-anchor" id="s15">
+  <div class="section-header">
+    <span class="section-num">15</span>
+    <h2 class="section-title">karate.expect() &mdash; Chai-Style BDD Assertions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">For teams migrating from Postman/Chai/Mocha, Karate v2 provides a familiar BDD assertion API. This is a convenience layer over <span class="ic">match</span>.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">karate.expect() &middot; Full API</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Equality</span>
+<span class="kw">*</span> karate.expect(response.name).to.equal(<span class="str">'John'</span>)
+<span class="kw">*</span> karate.expect(response.name).to.not.equal(<span class="str">'Jane'</span>)
+
+<span class="cm"># Numeric comparisons</span>
+<span class="kw">*</span> karate.expect(response.age).to.be.above(<span class="num">18</span>)
+<span class="kw">*</span> karate.expect(response.age).to.be.below(<span class="num">100</span>)
+<span class="kw">*</span> karate.expect(response.score).to.be.at.least(<span class="num">1</span>)
+<span class="kw">*</span> karate.expect(response.score).to.be.at.most(<span class="num">100</span>)
+
+<span class="cm"># Property checks</span>
+<span class="kw">*</span> karate.expect(response).to.have.property(<span class="str">'email'</span>)
+<span class="kw">*</span> karate.expect(response).to.not.have.property(<span class="str">'password'</span>)
+
+<span class="cm"># Array/String includes</span>
+<span class="kw">*</span> karate.expect(response.tags).to.include(<span class="str">'active'</span>)
+<span class="kw">*</span> karate.expect(response.name).to.include(<span class="str">'John'</span>)
+
+<span class="cm"># Type checks</span>
+<span class="kw">*</span> karate.expect(response.id).to.be.a(<span class="str">'number'</span>)
+<span class="kw">*</span> karate.expect(response.name).to.be.a(<span class="str">'string'</span>)
+<span class="kw">*</span> karate.expect(response.items).to.be.an(<span class="str">'array'</span>)
+
+<span class="cm"># Length</span>
+<span class="kw">*</span> karate.expect(response.items).to.have.length(<span class="num">5</span>)
+
+<span class="cm"># Truthiness</span>
+<span class="kw">*</span> karate.expect(response.active).to.be.ok
+<span class="kw">*</span> karate.expect(response.deleted).to.not.be.ok</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="callout callout-info">
+        <div class="callout-label">When to Use</div>
+        Use <span class="ic">karate.expect()</span> when it improves readability for your team. For most Karate-native tests, <span class="ic">match</span> is more idiomatic and powerful.
+      </div>
+
+      <div style="font-size:13px;font-weight:700;margin-top:20px;margin-bottom:12px;">match vs karate.expect() &mdash; Same Test</div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Side-by-Side Comparison</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># match style (idiomatic Karate)</span>
+<span class="kw">*</span> <span class="fn">match</span> response.name <span class="op">==</span> <span class="str">'John'</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">contains</span> { email: <span class="marker">'#string'</span> }
+<span class="kw">*</span> <span class="fn">match</span> response.tags <span class="op">contains</span> <span class="str">'active'</span>
+<span class="kw">*</span> <span class="fn">assert</span> response.age <span class="op">&gt;</span> <span class="num">18</span>
+
+<span class="cm"># karate.expect style (Chai-like)</span>
+<span class="kw">*</span> karate.expect(response.name).to.equal(<span class="str">'John'</span>)
+<span class="kw">*</span> karate.expect(response).to.have.property(<span class="str">'email'</span>)
+<span class="kw">*</span> karate.expect(response.tags).to.include(<span class="str">'active'</span>)
+<span class="kw">*</span> karate.expect(response.age).to.be.above(<span class="num">18</span>)</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S16: SOFT ASSERTIONS & LABELS -->
+<div class="section section-anchor" id="s16">
+  <div class="section-header">
+    <span class="section-num">16</span>
+    <h2 class="section-title">Soft Assertions &amp; Assertion Labels</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Soft Assertions (v2)</div>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:16px;">By default, a failed <span class="ic">match</span> stops the scenario immediately. Soft assertions collect all failures before stopping.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">continueOnStepFailure</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">Scenario:</span> Validate all fields at once
+  <span class="cm"># Enable soft assertions</span>
+  <span class="kw">*</span> configure continueOnStepFailure = <span class="val">true</span>
+
+  <span class="kw">*</span> <span class="fn">match</span> response.name <span class="op">==</span> <span class="str">'Alice'</span>
+  <span class="kw">*</span> <span class="fn">match</span> response.age <span class="op">==</span> <span class="num">30</span>
+  <span class="kw">*</span> <span class="fn">match</span> response.role <span class="op">==</span> <span class="str">'admin'</span>
+  <span class="kw">*</span> <span class="fn">match</span> response.email <span class="op">contains</span> <span class="str">'@'</span>
+  <span class="kw">*</span> <span class="fn">match</span> response.active <span class="op">==</span> <span class="val">true</span>
+
+  <span class="cm"># Disable &mdash; all 5 assertions checked,</span>
+  <span class="cm"># failures collected, scenario fails at end</span>
+  <span class="kw">*</span> configure continueOnStepFailure = <span class="val">false</span></pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Assertion Labels (v2)</div>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:16px;">A comment (<span class="ic">#</span>) immediately before a <span class="ic">match</span> becomes the failure message label &mdash; making test reports human-readable.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Assertion Labels &middot; Readable Failures</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">Scenario:</span> Validate user response
+  <span class="kw">*</span> <span class="fn">def</span> user = { name: <span class="str">'bar'</span>, status: <span class="str">'pending'</span> }
+
+  <span class="cm"># user name should be baz</span>
+  <span class="kw">*</span> <span class="fn">match</span> user.name <span class="op">==</span> <span class="str">'baz'</span>
+
+  <span class="cm"># Error message includes:</span>
+  <span class="cm"># "user name should be baz"</span>
+  <span class="cm"># "match failed: EQUALS - not equal"</span>
+
+  <span class="cm"># this comment is ignored</span>
+  <span class="cm"># status must be active</span>
+  <span class="kw">*</span> <span class="fn">match</span> user.status <span class="op">==</span> <span class="str">'active'</span>
+  <span class="cm"># Only the LAST comment before match is used</span></pre></div>
+      </div>
+
+      <div class="callout callout-tip" style="margin-top:16px;">
+        <div class="callout-label">Pro Tip</div>
+        Combine soft assertions with assertion labels for maximum debugging efficiency. Each failure in your HTML report will show a human-readable description instead of cryptic match errors.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S17: RETRY UNTIL & POLLING -->
+<div class="section section-anchor" id="s17">
+  <div class="section-header">
+    <span class="section-num">17</span>
+    <h2 class="section-title">Retry Until &amp; Polling Assertions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">retry until &middot; Polling Pattern</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Configure retry settings</span>
+<span class="kw">*</span> configure retry = { count: <span class="num">5</span>, interval: <span class="num">2000</span> }
+
+<span class="cm"># Retry until status is 200</span>
+<span class="kw">Given</span> url <span class="str">'https://api.example.com/job/123'</span>
+<span class="kw">And</span> <span class="fn">retry until</span> responseStatus <span class="op">==</span> <span class="num">200</span>
+<span class="kw">When</span> method get
+
+<span class="cm"># Retry until response field matches</span>
+<span class="kw">Given</span> url <span class="str">'https://api.example.com/job/123'</span>
+<span class="kw">And</span> <span class="fn">retry until</span> response.status <span class="op">==</span> <span class="str">'complete'</span>
+<span class="kw">When</span> method get
+
+<span class="cm"># Complex JS expression</span>
+<span class="kw">And</span> <span class="fn">retry until</span>
+  response.status <span class="op">==</span> <span class="str">'done'</span> <span class="op">||</span> response.status <span class="op">==</span> <span class="str">'failed'</span>
+<span class="kw">When</span> method get
+
+<span class="cm"># Default: 3 attempts, 3000ms interval</span>
+<span class="kw">And</span> <span class="fn">retry until</span> response.items.length <span class="op">&gt;</span> <span class="num">0</span>
+<span class="kw">When</span> method get</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Real-World Async Polling</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">Scenario:</span> Wait for async job to complete
+  <span class="cm"># Start a background job</span>
+  <span class="kw">Given</span> url baseUrl + <span class="str">'/jobs'</span>
+  <span class="kw">And</span> request { type: <span class="str">'export'</span>, format: <span class="str">'csv'</span> }
+  <span class="kw">When</span> method post
+  <span class="kw">Then</span> status <span class="num">202</span>
+  <span class="kw">*</span> <span class="fn">def</span> jobId = response.jobId
+
+  <span class="cm"># Poll until complete (max 10 tries, 3s apart)</span>
+  <span class="kw">*</span> configure retry = { count: <span class="num">10</span>, interval: <span class="num">3000</span> }
+  <span class="kw">Given</span> url baseUrl + <span class="str">'/jobs/'</span> + jobId
+  <span class="kw">And</span> <span class="fn">retry until</span>
+    response.status <span class="op">==</span> <span class="str">'complete'</span> <span class="op">||</span>
+    response.status <span class="op">==</span> <span class="str">'failed'</span>
+  <span class="kw">When</span> method get
+
+  <span class="cm"># Assert final state</span>
+  <span class="kw">*</span> <span class="fn">match</span> response.status <span class="op">==</span> <span class="str">'complete'</span>
+  <span class="kw">*</span> <span class="fn">match</span> response.downloadUrl <span class="op">==</span> <span class="marker">'#notnull'</span></pre></div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:16px;">
+        <div class="callout-label">Note</div>
+        <span class="ic">retry until</span> must appear BEFORE the <span class="ic">method</span> step. The condition is a JavaScript expression that can reference <span class="ic">response</span>, <span class="ic">responseStatus</span>, and <span class="ic">responseHeaders</span>.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S18: GRAPHQL & ASYNC -->
+<div class="section section-anchor" id="s18">
+  <div class="section-header">
+    <span class="section-num">18</span>
+    <h2 class="section-title">GraphQL, gRPC &amp; WebSocket Assertions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">GraphQL &middot; Query &amp; Assert</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">Scenario:</span> GraphQL assertion
+  <span class="kw">Given</span> url <span class="str">'https://api.example.com/graphql'</span>
+
+  <span class="cm"># Use text keyword for GraphQL (not def)</span>
+  <span class="kw">And</span> <span class="fn">text</span> query =
+    <span class="str">"""
+    {
+      user(id: 1) {
+        id
+        name
+        email
+        posts { title }
+      }
+    }
+    """</span>
+
+  <span class="kw">And</span> request { query: <span class="str">'#(query)'</span> }
+  <span class="kw">When</span> method post
+  <span class="kw">Then</span> status <span class="num">200</span>
+
+  <span class="cm"># Assert GraphQL response structure</span>
+  <span class="kw">*</span> <span class="fn">match</span> response.data.user <span class="op">==</span>
+    {
+      id: <span class="marker">'#notnull'</span>,
+      name: <span class="marker">'#string'</span>,
+      email: <span class="marker">'#regex .+@.+'</span>,
+      posts: <span class="marker">'#array'</span>
+    }
+
+  <span class="cm"># Assert no GraphQL errors</span>
+  <span class="kw">*</span> <span class="fn">match</span> response.errors <span class="op">==</span> <span class="marker">'#notpresent'</span>
+
+  <span class="cm"># Assert nested array</span>
+  <span class="kw">*</span> <span class="fn">match each</span> response.data.user.posts <span class="op">==</span>
+    { title: <span class="marker">'#string'</span> }</pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">WebSocket &amp; Async Assertions</span>
+        </div>
+        <div class="code-body"><pre><span class="fn">Scenario:</span> WebSocket message assertion
+  <span class="cm"># Connect to WebSocket</span>
+  <span class="kw">*</span> <span class="fn">def</span> handler = <span class="kw">function</span>(msg) {
+      <span class="kw">return</span> msg.contains(<span class="str">'COMPLETE'</span>)
+    }
+
+  <span class="kw">*</span> <span class="fn">def</span> ws = karate.webSocket(wsUrl, handler)
+
+  <span class="cm"># Send message</span>
+  <span class="kw">*</span> ws.send(<span class="str">'{ "action": "subscribe" }'</span>)
+
+  <span class="cm"># Wait for matching message (timeout: 5s)</span>
+  <span class="kw">*</span> <span class="fn">def</span> result = ws.listen(<span class="num">5000</span>)
+  <span class="kw">*</span> <span class="fn">match</span> result <span class="op">contains</span> <span class="str">'COMPLETE'</span>
+
+<span class="fn">Scenario:</span> gRPC assertion
+  <span class="cm"># gRPC uses same match assertions</span>
+  <span class="cm"># Protobuf auto-converts to JSON</span>
+  <span class="kw">Given</span> url <span class="str">'grpc://localhost:50051'</span>
+  <span class="kw">And</span> path <span class="str">'myservice.MyMethod'</span>
+  <span class="kw">And</span> request { name: <span class="str">'test'</span> }
+  <span class="kw">When</span> method post
+  <span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span>
+    { message: <span class="marker">'#string'</span>, code: <span class="marker">'#number'</span> }</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S19: DATA MANIPULATION -->
+<div class="section section-anchor" id="s19">
+  <div class="section-header">
+    <span class="section-num">19</span>
+    <h2 class="section-title">Data Manipulation for Assertions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">set &amp; remove &middot; Modify Before Assert</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># set &mdash; add or modify properties</span>
+<span class="kw">*</span> <span class="fn">def</span> user = { id: <span class="num">1</span>, name: <span class="str">'John'</span> }
+<span class="kw">*</span> <span class="fn">set</span> user.active = <span class="val">true</span>
+<span class="kw">*</span> <span class="fn">set</span> user.profile.email = <span class="str">'john@test.com'</span>
+<span class="kw">*</span> <span class="fn">match</span> user.active <span class="op">==</span> <span class="val">true</span>
+<span class="kw">*</span> <span class="fn">match</span> user.profile.email <span class="op">==</span> <span class="str">'john@test.com'</span>
+
+<span class="cm"># set multiple with table syntax</span>
+<span class="kw">*</span> <span class="fn">def</span> user = {}
+<span class="kw">*</span> <span class="fn">set</span> user
+  | path          | value              |
+  | name.first    | <span class="str">'John'</span>             |
+  | name.last     | <span class="str">'Doe'</span>              |
+  | age           | <span class="num">30</span>                 |
+<span class="kw">*</span> <span class="fn">match</span> user.name.first <span class="op">==</span> <span class="str">'John'</span>
+
+<span class="cm"># remove &mdash; strip fields before assertion</span>
+<span class="kw">*</span> <span class="fn">def</span> resp = response
+<span class="kw">*</span> <span class="fn">remove</span> resp.password
+<span class="kw">*</span> <span class="fn">remove</span> resp.internalId
+<span class="kw">*</span> <span class="fn">match</span> resp <span class="op">==</span> expected
+
+<span class="cm"># remove array element by index</span>
+<span class="kw">*</span> <span class="fn">def</span> items = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+<span class="kw">*</span> <span class="fn">remove</span> items[<span class="num">1</span>]
+<span class="kw">*</span> <span class="fn">match</span> items <span class="op">==</span> [<span class="num">1</span>, <span class="num">3</span>]
+
+<span class="cm"># Verify removal</span>
+<span class="kw">*</span> <span class="fn">match</span> user.password <span class="op">==</span> <span class="marker">'#notpresent'</span></pre></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">delete &amp; Transform Before Assert</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># delete &mdash; dynamic key removal</span>
+<span class="kw">*</span> <span class="fn">def</span> key = <span class="str">'tempData'</span>
+<span class="kw">*</span> <span class="fn">def</span> obj = { id: <span class="num">1</span>, tempData: <span class="str">'remove'</span> }
+<span class="kw">*</span> <span class="fn">delete</span> obj[key]
+<span class="kw">*</span> <span class="fn">match</span> obj <span class="op">==</span> { id: <span class="num">1</span> }
+
+<span class="cm"># karate.merge &mdash; combine then assert</span>
+<span class="kw">*</span> <span class="fn">def</span> base = { id: <span class="num">1</span> }
+<span class="kw">*</span> <span class="fn">def</span> extra = { name: <span class="str">'John'</span> }
+<span class="kw">*</span> <span class="fn">def</span> merged = karate.merge(base, extra)
+<span class="kw">*</span> <span class="fn">match</span> merged <span class="op">==</span> { id: <span class="num">1</span>, name: <span class="str">'John'</span> }
+
+<span class="cm"># karate.append &mdash; build arrays</span>
+<span class="kw">*</span> <span class="fn">def</span> arr = karate.append([<span class="num">1</span>], [<span class="num">2</span>], [<span class="num">3</span>])
+<span class="kw">*</span> <span class="fn">match</span> arr <span class="op">==</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+
+<span class="cm"># Transform XML to JSON for easier asserts</span>
+<span class="kw">*</span> <span class="fn">def</span> json = karate.toJson(xmlResponse)
+<span class="kw">*</span> <span class="fn">match</span> json.root.name <span class="op">==</span> <span class="str">'John'</span>
+
+<span class="cm"># Remove XML element</span>
+<span class="kw">*</span> <span class="fn">def</span> xml = <span class="str">&lt;r&gt;&lt;a&gt;1&lt;/a&gt;&lt;b&gt;2&lt;/b&gt;&lt;/r&gt;</span>
+<span class="kw">*</span> <span class="fn">remove</span> xml /r/b
+<span class="kw">*</span> <span class="fn">match</span> xml <span class="op">==</span> <span class="str">&lt;r&gt;&lt;a&gt;1&lt;/a&gt;&lt;/r&gt;</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S20: CONTAINS SHORTCUTS -->
+<div class="section section-anchor" id="s20">
+  <div class="section-header">
+    <span class="section-num">20</span>
+    <h2 class="section-title">Contains Shortcuts &amp; Embedded Symbols</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Shortcut Symbols for Embedded Expressions</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Symbol</th><th>Equivalent</th><th>Usage in #()</th></tr>
+          <tr><td><code>^</code></td><td><code>contains</code></td><td><code>#(^expected)</code></td></tr>
+          <tr><td><code>^^</code></td><td><code>contains only</code></td><td><code>#(^^expected)</code></td></tr>
+          <tr><td><code>^*</code></td><td><code>contains any</code></td><td><code>#(^*expected)</code></td></tr>
+          <tr><td><code>^+</code></td><td><code>contains deep</code></td><td><code>#(^+expected)</code></td></tr>
+          <tr><td><code>!^</code></td><td><code>not contains</code></td><td><code>#(!^expected)</code></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+          <span class="code-lang">Contains Shortcuts in Action</span>
+        </div>
+        <div class="code-body"><pre><span class="cm"># Define expected schema</span>
+<span class="kw">*</span> <span class="fn">def</span> required = { id: <span class="marker">'#number'</span>, title: <span class="marker">'#string'</span> }
+
+<span class="cm"># Response contains at minimum these fields</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span> <span class="marker">'#(^required)'</span>
+
+<span class="cm"># Array contains all expected items (any order)</span>
+<span class="kw">*</span> <span class="fn">def</span> expected = [{ id: <span class="num">42</span> }, { id: <span class="num">23</span> }]
+<span class="kw">*</span> <span class="fn">match</span> cat <span class="op">==</span>
+  { name: <span class="str">'Billie'</span>, kittens: <span class="marker">'#(^^expected)'</span> }
+
+<span class="cm"># Contains any of these</span>
+<span class="kw">*</span> <span class="fn">def</span> data = { tags: [<span class="str">'api'</span>, <span class="str">'test'</span>] }
+<span class="kw">*</span> <span class="fn">match</span> data.tags <span class="op">==</span> <span class="marker">'#(^*["api", "other"])'</span>
+
+<span class="cm"># Not contains</span>
+<span class="kw">*</span> <span class="fn">match</span> data.tags <span class="op">==</span> <span class="marker">'#(!^["deleted"])'</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S21: REAL-WORLD RECIPES -->
+<div class="section section-anchor" id="s21">
+  <div class="section-header">
+    <span class="section-num">21</span>
+    <h2 class="section-title">Real-World Assertion Recipes</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Copy-paste patterns for the most common API assertion scenarios.</p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(0,212,170,0.1)">&#9989;</div>
+        <div><div class="card-title">CRUD Validation</div><div class="card-subtitle">Create, Read, Update, Delete</div></div>
+      </div>
+      <div class="card-body">
+        <div class="code-block" style="margin:0;">
+          <div class="code-body" style="padding:12px"><pre><span class="cm"># POST &mdash; Create</span>
+<span class="kw">*</span> <span class="fn">match</span> responseStatus <span class="op">==</span> <span class="num">201</span>
+<span class="kw">*</span> <span class="fn">match</span> response.id <span class="op">==</span> <span class="marker">'#notnull'</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">contains</span> request
+
+<span class="cm"># GET &mdash; Read</span>
+<span class="kw">*</span> <span class="fn">match</span> responseStatus <span class="op">==</span> <span class="num">200</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span> schema
+
+<span class="cm"># PUT &mdash; Update</span>
+<span class="kw">*</span> <span class="fn">match</span> responseStatus <span class="op">==</span> <span class="num">200</span>
+<span class="kw">*</span> <span class="fn">match</span> response.updatedAt <span class="op">==</span> <span class="marker">'#notnull'</span>
+
+<span class="cm"># DELETE &mdash; 204 No Content</span>
+<span class="kw">*</span> <span class="fn">match</span> responseStatus <span class="op">==</span> <span class="num">204</span></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(255,123,114,0.1)">&#128274;</div>
+        <div><div class="card-title">Error Response Validation</div><div class="card-subtitle">4xx / 5xx handling</div></div>
+      </div>
+      <div class="card-body">
+        <div class="code-block" style="margin:0;">
+          <div class="code-body" style="padding:12px"><pre><span class="cm"># Disable auto status check for error tests</span>
+<span class="kw">*</span> configure responseStatusCheck = <span class="val">false</span>
+
+<span class="cm"># 400 Bad Request</span>
+<span class="kw">*</span> <span class="fn">match</span> responseStatus <span class="op">==</span> <span class="num">400</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span>
+  { error: <span class="marker">'#string'</span>, message: <span class="marker">'#string'</span> }
+
+<span class="cm"># 401 Unauthorized</span>
+<span class="kw">*</span> <span class="fn">match</span> responseStatus <span class="op">==</span> <span class="num">401</span>
+
+<span class="cm"># 404 Not Found</span>
+<span class="kw">*</span> <span class="fn">match</span> responseStatus <span class="op">==</span> <span class="num">404</span>
+<span class="kw">*</span> <span class="fn">match</span> response.error <span class="op">contains</span> <span class="str">'not found'</span></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(88,166,255,0.1)">&#128196;</div>
+        <div><div class="card-title">Pagination Assertion</div><div class="card-subtitle">List endpoints with paging</div></div>
+      </div>
+      <div class="card-body">
+        <div class="code-block" style="margin:0;">
+          <div class="code-body" style="padding:12px"><pre><span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span>
+  {
+    data: <span class="marker">'#[] #object'</span>,
+    page: <span class="marker">'#number'</span>,
+    perPage: <span class="marker">'#number'</span>,
+    total: <span class="marker">'#number'</span>,
+    totalPages: <span class="marker">'#number'</span>
+  }
+<span class="kw">*</span> <span class="fn">assert</span> response.data.length <span class="op">&lt;=</span> response.perPage
+<span class="kw">*</span> <span class="fn">match each</span> response.data <span class="op">contains</span>
+  { id: <span class="marker">'#number'</span> }</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(210,168,255,0.1)">&#128272;</div>
+        <div><div class="card-title">Auth Token Validation</div><div class="card-subtitle">JWT / OAuth patterns</div></div>
+      </div>
+      <div class="card-body">
+        <div class="code-block" style="margin:0;">
+          <div class="code-body" style="padding:12px"><pre><span class="cm"># Login response</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">==</span>
+  {
+    access_token: <span class="marker">'#string'</span>,
+    refresh_token: <span class="marker">'#string'</span>,
+    token_type: <span class="str">'Bearer'</span>,
+    expires_in: <span class="marker">'#number? _ > 0'</span>
+  }
+
+<span class="cm"># JWT structure (3 dot-separated parts)</span>
+<span class="kw">*</span> <span class="fn">match</span> response.access_token <span class="op">==</span>
+  <span class="marker">'#regex [A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+'</span></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(240,136,62,0.1)">&#128200;</div>
+        <div><div class="card-title">Sorting &amp; Ordering</div><div class="card-subtitle">Verify sort order in responses</div></div>
+      </div>
+      <div class="card-body">
+        <div class="code-block" style="margin:0;">
+          <div class="code-body" style="padding:12px"><pre><span class="cm"># Verify ascending sort</span>
+<span class="kw">*</span> <span class="fn">def</span> ids = $response[*].id
+<span class="kw">*</span> <span class="fn">def</span> sorted = karate.sort(ids,
+    <span class="kw">function</span>(a,b){ <span class="kw">return</span> a - b })
+<span class="kw">*</span> <span class="fn">match</span> ids <span class="op">==</span> sorted
+
+<span class="cm"># Or use Java interop</span>
+<span class="kw">*</span> <span class="fn">def</span> Utils = Java.type(<span class="str">'utils.AssertionUtils'</span>)
+<span class="kw">*</span> <span class="fn">assert</span> Utils.isSorted(ids)</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(63,185,80,0.1)">&#128640;</div>
+        <div><div class="card-title">Performance SLA</div><div class="card-subtitle">Response time budgets</div></div>
+      </div>
+      <div class="card-body">
+        <div class="code-block" style="margin:0;">
+          <div class="code-body" style="padding:12px"><pre><span class="cm"># Hard SLA</span>
+<span class="kw">*</span> <span class="fn">assert</span> responseTime <span class="op">&lt;</span> <span class="num">2000</span>
+
+<span class="cm"># Range SLA with match within (v2)</span>
+<span class="kw">*</span> <span class="fn">match</span> responseTime <span class="op">within</span>
+  { low: <span class="num">0</span>, high: <span class="num">1500</span> }
+
+<span class="cm"># Conditional SLA by endpoint</span>
+<span class="kw">*</span> <span class="fn">def</span> sla = (path == <span class="str">'/health'</span>) ? <span class="num">500</span> : <span class="num">3000</span>
+<span class="kw">*</span> <span class="fn">assert</span> responseTime <span class="op">&lt;</span> sla</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(0,212,170,0.1)">&#128203;</div>
+        <div><div class="card-title">Data-Driven Assertions</div><div class="card-subtitle">Scenario Outline + Examples</div></div>
+      </div>
+      <div class="card-body">
+        <div class="code-block" style="margin:0;">
+          <div class="code-body" style="padding:12px"><pre><span class="fn">Scenario Outline:</span> Validate user &lt;id&gt;
+  <span class="kw">Given</span> url baseUrl + <span class="str">'/users/'</span> + &lt;id&gt;
+  <span class="kw">When</span> method get
+  <span class="kw">Then</span> status <span class="num">200</span>
+  <span class="kw">*</span> <span class="fn">match</span> response.name <span class="op">==</span> &lt;name&gt;
+  <span class="kw">*</span> <span class="fn">match</span> response.role <span class="op">==</span> &lt;role&gt;
+
+  <span class="fn">Examples:</span>
+    | id | name    | role    |
+    | 1  | 'Alice' | 'admin' |
+    | 2  | 'Bob'   | 'user'  |
+    | 3  | 'Carol' | 'guest' |</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(210,73,57,0.1)">&#128736;</div>
+        <div><div class="card-title">Reusable Feature Call</div><div class="card-subtitle">Common assertion in shared file</div></div>
+      </div>
+      <div class="card-body">
+        <div class="code-block" style="margin:0;">
+          <div class="code-body" style="padding:12px"><pre><span class="cm"># common/validate-user.feature (@ignore)</span>
+<span class="fn">Scenario:</span>
+  <span class="kw">*</span> <span class="fn">match</span> user <span class="op">==</span> userSchema
+  <span class="kw">*</span> <span class="fn">match</span> user.email <span class="op">==</span> <span class="marker">'#regex .+@.+'</span>
+
+<span class="cm"># In your test:</span>
+<span class="kw">*</span> <span class="fn">def</span> result = call read(<span class="str">'common/validate-user.feature'</span>)
+  { user: response }</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(88,166,255,0.1)">&#128526;</div>
+        <div><div class="card-title">Negative Test Patterns</div><div class="card-subtitle">Validate what should NOT exist</div></div>
+      </div>
+      <div class="card-body">
+        <div class="code-block" style="margin:0;">
+          <div class="code-body" style="padding:12px"><pre><span class="cm"># Field must NOT be in response</span>
+<span class="kw">*</span> <span class="fn">match</span> response.password <span class="op">==</span> <span class="marker">'#notpresent'</span>
+<span class="kw">*</span> <span class="fn">match</span> response.ssn <span class="op">==</span> <span class="marker">'#notpresent'</span>
+
+<span class="cm"># Array must NOT contain value</span>
+<span class="kw">*</span> <span class="fn">match</span> response.roles <span class="op">!contains</span> <span class="str">'superadmin'</span>
+
+<span class="cm"># Object must NOT have field</span>
+<span class="kw">*</span> <span class="fn">match</span> response <span class="op">!contains</span> { debug: <span class="marker">'#present'</span> }
+
+<span class="cm"># Empty array check</span>
+<span class="kw">*</span> <span class="fn">match</span> response.errors <span class="op">==</span> <span class="marker">'#[0]'</span></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">
+    <div style="font-weight:700;color:var(--text);margin-bottom:4px;">Karate API Assertions &mdash; The Ultimate Cheat Sheet</div>
+    <div>Built for SDETs &amp; API Test Engineers &middot; 2024&ndash;2026</div>
+  </div>
+  <div class="footer-right">
+    <span>&#11088; Star on GitHub</span>
+    <span>&middot;</span>
+    <span>Karate v1.x + v2</span>
+    <span>&middot;</span>
+    <span>karatelabs.io</span>
+  </div>
+</div>
+
+<script>
+(function() {
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('toggleIcon');
+  var body = document.body;
+  var saved = localStorage.getItem('karate-cs-theme');
+  var theme = saved || 'light';
+  body.setAttribute('data-theme', theme);
+  icon.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+  toggle.addEventListener('click', function() {
+    var current = body.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+    body.setAttribute('data-theme', next);
+    icon.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    localStorage.setItem('karate-cs-theme', next);
+  });
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.code-header').forEach(function(header) {
+    if (header.querySelector('.code-copy')) return;
+    var btn = document.createElement('button');
+    btn.className = 'code-copy';
+    btn.textContent = 'COPY';
+    btn.addEventListener('click', function() {
+      var body = header.nextElementSibling;
+      if (!body) return;
+      var pre = body.querySelector('pre');
+      if (!pre) return;
+      var text = pre.textContent || pre.innerText;
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = 'COPIED!';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = 'COPY';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+    header.appendChild(btn);
+  });
+});
+</script>
+</body>
+</html>
